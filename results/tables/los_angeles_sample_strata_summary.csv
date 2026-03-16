@@ -1,0 +1,7 @@
+sample_group,properties,share_of_sample,properties_with_case_history,mean_total_cases,mean_units,mean_year_built
+all_sampled,150,1.0,150,15.78,34.467,1941.044
+with_case_history,150,1.0,150,15.78,34.467,1941.044
+with_rent_registration,84,0.56,84,12.31,10.298,1930.918
+without_rent_registration,66,0.44,66,20.197,65.227,1959.525
+rso_eligible_proxy,2,0.0133,2,16.0,7.5,1918.5
+not_rso_eligible_proxy,148,0.9867,148,15.777,34.831,1941.45

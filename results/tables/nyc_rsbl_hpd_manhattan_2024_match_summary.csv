@@ -1,0 +1,2 @@
+borough,rsbl_rows,rsbl_unique_boro_block_lot,hpd_rows,hpd_unique_boro_block_lot,matched_boro_block_lot,rsbl_match_rate_pct,hpd_match_rate_pct
+MANHATTAN,14474,13707,20233,20233,10597,77.31086306266872,52.37483319329807

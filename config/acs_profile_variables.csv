@@ -1,0 +1,12 @@
+metric_name,variable_code,dataset,universe,description,transform
+same_house_1y_pct,DP02_0079PE (2015-2018) / DP02_0080PE (2019+),acs1/profile,Population 1 year and over,Percent in same house as one year ago,year-aware code harmonization
+moved_last_year_pct,100 - same_house_1y_pct,acs1/profile,Population 1 year and over,Percent in a different house (U.S. or abroad) from one year ago,compute from same-house share
+moved_within_us_pct,DP02_0080PE (2015-2018) / DP02_0081PE (2019+),acs1/profile,Population 1 year and over,Percent in a different house in the U.S. from one year ago,year-aware code harmonization
+moved_different_state_pct,DP02_0084PE (2015-2018) / DP02_0085PE (2019+),acs1/profile,Population 1 year and over,Percent in a different house in a different state from one year ago,year-aware code harmonization
+median_household_income,DP03_0062E,acs1/profile,Total households,Median household income (inflation-adjusted dollars),use directly
+renter_households,DP04_0047E,acs1/profile,Occupied housing units,Renter-occupied units,use directly
+renter_share_pct,DP04_0047PE,acs1/profile,Occupied housing units,Percent renter-occupied,use directly
+median_gross_rent,DP04_0132E (2010-2014) / DP04_0134E (2015+),acs1/profile,Occupied units paying rent,Median gross rent (dollars),year-aware code harmonization
+rent_burden_30_34_9_pct,DP04_0139PE (2010-2014) / DP04_0141PE (2015+),acs1/profile,Occupied rental units with computable GRAPI,Percent paying 30.0 to 34.9% of income in gross rent,year-aware code harmonization
+rent_burden_35_plus_pct,DP04_0140PE (2010-2014) / DP04_0142PE (2015+),acs1/profile,Occupied rental units with computable GRAPI,Percent paying 35.0% or more of income in gross rent,year-aware code harmonization
+rent_burden_30_plus_pct,(DP04_0139PE + DP04_0140PE) (2010-2014) / (DP04_0141PE + DP04_0142PE) (2015+),acs1/profile,Occupied rental units with computable GRAPI,Percent paying 30% or more of income in gross rent,year-aware code harmonization plus sum components

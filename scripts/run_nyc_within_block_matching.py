@@ -1,0 +1,203 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import statsmodels.formula.api as smf
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from rent_control_public.nyc import (
+    aggregate_matched_pair_year,
+    build_matched_pair_panel,
+    build_preperiod_building_features,
+    match_treated_to_controls,
+)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Build a within-block matched NYC comparison from the enriched panel.")
+    parser.add_argument("--since-year", type=int, default=2019)
+    parser.add_argument("--pre-years", nargs="+", type=int, default=[2019, 2020, 2021])
+    parser.add_argument("--max-abs-pre-mean-gap", type=float, default=0.75)
+    return parser
+
+
+def load_enriched_panel(since_year: int) -> pd.DataFrame:
+    path = ROOT / "data" / "processed" / f"nyc_hpd_building_year_analytic_panel_enriched_since_{since_year}.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"Missing {path}. Run scripts/run_nyc_enriched_stratified_comparison.py first.")
+    return pd.read_csv(path)
+
+
+def extract_boro_block(bbl_series: pd.Series) -> pd.Series:
+    """Extract borough+block (first 6 chars of 10-digit BBL) as a geographic key."""
+    return bbl_series.astype(str).str[:6]
+
+
+def build_year_gap(pair_year: pd.DataFrame) -> pd.DataFrame:
+    treated = pair_year[pair_year["treated_rsbl"] == 1][["match_id", "inspection_year", "mean_violation_count"]].rename(
+        columns={"mean_violation_count": "mean_treated"}
+    )
+    control = pair_year[pair_year["treated_rsbl"] == 0][["match_id", "inspection_year", "mean_violation_count"]].rename(
+        columns={"mean_violation_count": "mean_control"}
+    )
+    merged = treated.merge(control, on=["match_id", "inspection_year"], how="inner")
+    merged["diff"] = merged["mean_treated"] - merged["mean_control"]
+    return merged.sort_values(["inspection_year", "match_id"]).reset_index(drop=True)
+
+
+def summarize_gap_by_year(pair_gap: pd.DataFrame) -> pd.DataFrame:
+    out = (
+        pair_gap.groupby("inspection_year", as_index=False)
+        .agg(
+            matched_pairs=("match_id", "nunique"),
+            mean_treated=("mean_treated", "mean"),
+            mean_control=("mean_control", "mean"),
+            mean_gap=("diff", "mean"),
+            median_gap=("diff", "median"),
+        )
+    )
+    out["gap_ratio"] = out["mean_treated"] / out["mean_control"].replace(0, pd.NA)
+    return out.sort_values("inspection_year").reset_index(drop=True)
+
+
+def fit_gap_model(pair_gap: pd.DataFrame):
+    model_df = pair_gap.copy()
+    model_df["inspection_year"] = pd.to_numeric(model_df["inspection_year"], errors="coerce").astype(int)
+    return smf.ols("diff ~ C(inspection_year)", data=model_df).fit(cov_type="HC1")
+
+
+def write_plot(year_summary: pd.DataFrame, output_path: Path) -> None:
+    plt.figure(figsize=(10, 6))
+    plt.plot(year_summary["inspection_year"], year_summary["mean_gap"], linewidth=2.5, label="Within-block matched treated-control gap")
+    plt.axhline(0, color="black", linewidth=1, alpha=0.5)
+    plt.title("NYC HPD Violations: Within-Block Matched Gap")
+    plt.xlabel("Inspection year")
+    plt.ylabel("Mean treated-control gap")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    processed_dir = ROOT / "data" / "processed"
+    results_dir = ROOT / "results" / "tables"
+    figures_dir = ROOT / "results" / "figures"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    panel = load_enriched_panel(args.since_year)
+
+    # Add boro_block column for block-level exact matching
+    panel["boro_block"] = extract_boro_block(panel["boro_block_lot"])
+
+    features = build_preperiod_building_features(panel, pre_years=tuple(args.pre_years))
+    # Carry boro_block through to features
+    block_lookup = panel[["boro_block_lot", "boro_block"]].drop_duplicates(subset=["boro_block_lot"])
+    block_lookup["boro_block_lot"] = block_lookup["boro_block_lot"].astype(str)
+    features["boro_block_lot"] = features["boro_block_lot"].astype(str)
+    features = features.merge(block_lookup, on="boro_block_lot", how="left")
+
+    # Check feasibility: need blocks with both treated and control buildings
+    block_status = features.groupby("boro_block").agg(
+        has_treated=("treated_rsbl", "max"),
+        has_control=("treated_rsbl", lambda s: int((s == 0).any())),
+        has_mdr_control=("mdr_registered", lambda s: int(((features.loc[s.index, "treated_rsbl"] == 0) & (features.loc[s.index, "mdr_registered"] == 1)).any())),
+    )
+    feasible_blocks = block_status[(block_status["has_treated"] == 1) & (block_status["has_mdr_control"] == 1)]
+    print(f"Blocks with both treated and MDR-registered control buildings: {len(feasible_blocks)}")
+    treated_in_feasible = features[(features["treated_rsbl"] == 1) & (features["boro_block"].isin(feasible_blocks.index))]
+    print(f"Treated buildings in feasible blocks: {treated_in_feasible['boro_block_lot'].nunique()}")
+
+    if len(feasible_blocks) == 0:
+        print("BLOCKER: No blocks have both treated and MDR-registered control buildings. Within-block matching is not feasible.")
+        return
+
+    matches = match_treated_to_controls(
+        features,
+        exact_match_cols=("boro_block", "yearbuilt_bin", "units_bin"),
+        distance_cols=("pre_mean_violation_count", "pre_total_violation_count", "unitstotal", "yearbuilt"),
+        distance_weights={
+            "pre_mean_violation_count": 4.0,
+            "pre_total_violation_count": 2.0,
+            "unitstotal": 0.2,
+            "yearbuilt": 0.02,
+        },
+        allow_replacement=True,
+        prefer_same_or_lower_pre_mean=True,
+        max_abs_pre_mean_gap=args.max_abs_pre_mean_gap,
+    )
+
+    if matches.empty:
+        print("BLOCKER: No matches found with within-block exact matching. Design not feasible.")
+        return
+
+    matched_panel = build_matched_pair_panel(panel, matches)
+    pair_year = aggregate_matched_pair_year(matched_panel)
+    pair_gap = build_year_gap(pair_year)
+    year_summary = summarize_gap_by_year(pair_gap)
+    model = fit_gap_model(pair_gap)
+
+    treated_total = int(features.loc[features["treated_rsbl"] == 1, "boro_block_lot"].nunique())
+    balance = pd.DataFrame(
+        [
+            {
+                "matched_pairs": matches["match_id"].nunique(),
+                "matched_treated_share": matches["treated_boro_block_lot"].nunique() / treated_total if treated_total else pd.NA,
+                "treated_pre_mean": matches["treated_pre_mean_violation_count"].mean(),
+                "control_pre_mean": matches["control_pre_mean_violation_count"].mean(),
+                "mean_pre_gap": matches["pre_mean_gap"].mean(),
+                "mean_abs_pre_gap": matches["pre_mean_gap"].abs().mean(),
+                "mean_treated_units": matches["treated_unitstotal"].mean(),
+                "mean_control_units": matches["control_unitstotal"].mean(),
+            }
+        ]
+    )
+
+    coef = pd.DataFrame(
+        {
+            "term": model.params.index,
+            "coef": model.params.values,
+            "std_err": model.bse.values,
+            "t": model.tvalues.values,
+            "p_value": model.pvalues.values,
+        }
+    )
+
+    suffix = f"since_{args.since_year}"
+    matches_path = processed_dir / f"nyc_within_block_matches_{suffix}.csv"
+    matched_panel_path = processed_dir / f"nyc_within_block_matched_panel_{suffix}.csv"
+    balance_path = results_dir / f"nyc_within_block_match_balance_{suffix}.csv"
+    year_gap_path = results_dir / f"nyc_within_block_year_gap_summary_{suffix}.csv"
+    coef_path = results_dir / f"nyc_within_block_gap_model_coefficients_{suffix}.csv"
+    model_path = results_dir / f"nyc_within_block_gap_model_summary_{suffix}.txt"
+    figure_path = figures_dir / f"nyc_within_block_gap_{suffix}.png"
+
+    matches.to_csv(matches_path, index=False)
+    matched_panel.to_csv(matched_panel_path, index=False)
+    balance.to_csv(balance_path, index=False)
+    year_summary.to_csv(year_gap_path, index=False)
+    coef.to_csv(coef_path, index=False)
+    model_path.write_text(model.summary().as_text())
+    write_plot(year_summary, figure_path)
+
+    print(f"wrote {matches_path}")
+    print(f"wrote {matched_panel_path}")
+    print(f"wrote {balance_path}")
+    print(f"wrote {year_gap_path}")
+    print(f"wrote {coef_path}")
+    print(f"wrote {model_path}")
+    print(f"wrote {figure_path}")
+    print(balance.to_string(index=False))
+
+
+if __name__ == "__main__":
+    main()

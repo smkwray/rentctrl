@@ -1,0 +1,7 @@
+value_col,period,treated_group,control_groups,treated_mean,treated_n,control_mean,control_n,treated_change,control_change,diff_in_diff,outcome
+permits_units_total,post,Ramsey County,"Hennepin County, Dakota County",1445.0,2,3607.25,2,-458.75,-978.5,519.75,permits_units_total
+permits_units_total,pre,Ramsey County,"Hennepin County, Dakota County",1903.75,8,4585.75,8,0.0,0.0,0.0,permits_units_total
+emplvl_mean,post,Ramsey County,"Hennepin County, Dakota County",325462.3333333334,14,551154.5714285715,14,7084.025641025684,13389.827838827856,-6305.802197802172,qcew_total_covered_emplvl
+emplvl_mean,pre,Ramsey County,"Hennepin County, Dakota County",318378.3076923077,13,537764.7435897436,13,0.0,0.0,0.0,qcew_total_covered_emplvl
+avg_wkly_wage,post,Ramsey County,"Hennepin County, Dakota County",1466.7857142857142,14,1534.5357142857142,14,144.1703296703297,171.4203296703297,-27.25,qcew_avg_wkly_wage
+avg_wkly_wage,pre,Ramsey County,"Hennepin County, Dakota County",1322.6153846153845,13,1363.1153846153845,13,0.0,0.0,0.0,qcew_avg_wkly_wage

@@ -1,0 +1,15 @@
+state_name,state_abbr,state_fips,analysis_role,ever_treated
+Arizona,AZ,04,donor,0
+California,CA,06,core_treated,1
+Colorado,CO,08,donor,0
+Florida,FL,12,donor,0
+Georgia,GA,13,donor,0
+Idaho,ID,16,donor,0
+Nevada,NV,32,donor,0
+North Carolina,NC,37,donor,0
+Oregon,OR,41,core_treated,1
+Tennessee,TN,47,donor,0
+Texas,TX,48,donor,0
+Utah,UT,49,donor,0
+Virginia,VA,51,donor,0
+Washington,WA,53,descriptive_extension,1

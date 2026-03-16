@@ -1,0 +1,30 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                   diff   R-squared:                       0.000
+Model:                            OLS   Adj. R-squared:                  0.000
+Method:                 Least Squares   F-statistic:                     12.88
+Date:                Sun, 15 Mar 2026   Prob (F-statistic):           1.32e-14
+Time:                        07:09:13   Log-Likelihood:            -4.3389e+05
+No. Observations:              114842   AIC:                         8.678e+05
+Df Residuals:                  114835   BIC:                         8.679e+05
+Df Model:                           6                                         
+Covariance Type:                  HC1                                         
+==============================================================================================
+                                 coef    std err          z      P>|z|      [0.025      0.975]
+----------------------------------------------------------------------------------------------
+Intercept                     -0.7801      0.045    -17.416      0.000      -0.868      -0.692
+C(inspection_year)[T.2020]     0.2254      0.057      3.931      0.000       0.113       0.338
+C(inspection_year)[T.2021]    -0.3747      0.078     -4.828      0.000      -0.527      -0.223
+C(inspection_year)[T.2022]    -0.0203      0.089     -0.228      0.819      -0.194       0.154
+C(inspection_year)[T.2023]     0.1785      0.085      2.106      0.035       0.012       0.345
+C(inspection_year)[T.2024]     0.1813      0.107      1.699      0.089      -0.028       0.390
+C(inspection_year)[T.2025]     0.2589      0.148      1.744      0.081      -0.032       0.550
+==============================================================================
+Omnibus:                   244442.515   Durbin-Watson:                   1.966
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):       4190904275.581
+Skew:                         -18.200   Prob(JB):                         0.00
+Kurtosis:                     938.148   Cond. No.                         7.87
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity robust (HC1)

@@ -1,0 +1,2 @@
+geography,rsbl_rows,rsbl_unique_boro_block_lot,hpd_rows,hpd_unique_boro_block_lot,matched_boro_block_lot,rsbl_match_rate_pct,hpd_match_rate_pct
+NYC,50856,47256,140392,140392,32951,69.72871169798545,23.470710581799533

@@ -1,0 +1,8 @@
+metric,value
+balanced_buildings_total,89100
+balanced_treated_buildings,32793
+balanced_control_buildings,56307
+balanced_rows,623700
+model_years,7
+first_year,2019
+last_year,2025

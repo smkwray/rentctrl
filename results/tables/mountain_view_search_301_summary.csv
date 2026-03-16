@@ -1,0 +1,10 @@
+metric,value
+keyword,301
+rows_returned,40
+apn_rows,20
+case_rows,20
+address_rows,0
+count_apn,20
+count_case,0
+count_address,0
+fully_covered_rows,20

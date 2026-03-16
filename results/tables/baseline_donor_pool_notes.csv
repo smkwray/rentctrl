@@ -1,0 +1,12 @@
+state_name,state_abbr,state_fips,note
+Arizona,AZ,04,Included in the baseline donor pool.
+Colorado,CO,08,Included in the baseline donor pool.
+Florida,FL,12,Included in the baseline donor pool.
+Georgia,GA,13,Included in the baseline donor pool.
+Idaho,ID,16,Included in the baseline donor pool.
+North Carolina,NC,37,Included in the baseline donor pool.
+Nevada,NV,32,Included in the baseline donor pool.
+Tennessee,TN,47,Included in the baseline donor pool.
+Texas,TX,48,Included in the baseline donor pool.
+Utah,UT,49,Included in the baseline donor pool.
+Virginia,VA,51,Included in the baseline donor pool.

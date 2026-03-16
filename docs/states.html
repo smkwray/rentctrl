@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>rentctrl &mdash; Statewide Analysis</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body data-page="states">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">rent<span class="logo-accent">ctrl</span></a>
+      <div class="header-controls">
+        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+        <button id="themeToggle" class="theme-toggle" onclick="rcToggleTheme()" aria-label="Toggle theme">&#9790;</button>
+      </div>
+      <nav><ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="states.html">States</a></li>
+        <li><a href="cities.html">Cities</a></li>
+      </ul></nav>
+    </div>
+  </header>
+
+  <section class="hero hero-sm">
+    <div class="hero-inner">
+      <h1>Statewide Analysis</h1>
+      <p class="subtitle">
+        Pooled TWFE event-study estimates comparing Oregon and California to eleven donor states
+        with no statewide rent cap. Four federal data sources, 13 outcome variables, 116 robustness specifications.
+      </p>
+    </div>
+  </section>
+
+  <main class="content">
+
+    <div class="page-nav">
+      <a href="#design" class="active">Design</a>
+      <a href="#questions">Questions</a>
+      <a href="#results">Results</a>
+      <a href="#ca-or">CA vs. OR</a>
+      <a href="#profiles">Profiles</a>
+      <a href="#credibility">Credibility</a>
+      <a href="#data">Data</a>
+      <a href="#methods">Methods</a>
+    </div>
+
+    <!-- Design -->
+    <section id="design" class="section">
+      <div class="section-header"><h2>Design Overview</h2></div>
+      <div class="card-grid">
+        <div class="card">
+          <h3>Policy Events</h3>
+          <p>
+            <strong>Oregon SB&nbsp;608</strong> (effective 2019-02-28) &mdash; caps annual rent increases at CPI&nbsp;+&nbsp;7 percentage points on most rental units over 15 years old. First statewide rent cap in U.S. history.<br><br>
+            <strong>California AB&nbsp;1482</strong> (effective 2020-01-01) &mdash; caps increases at CPI&nbsp;+&nbsp;5 pp on most units over 15 years old. Applies statewide to ~8 million rental units.<br><br>
+            <strong>Washington HB&nbsp;1217</strong> (effective 2025-05-07) &mdash; 7% annual cap. Included for descriptive tracking only; almost no post-policy data exist.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Comparison Group</h3>
+          <p>
+            <strong>11 donor states</strong> with no statewide rent cap during the sample period:
+            Arizona, Colorado, Florida, Georgia, Idaho, North Carolina, Nevada, Tennessee, Texas, Utah, Virginia.<br><br>
+            Sensitivity checks restrict to <strong>western-only donors</strong> (AZ, CO, ID, NV, UT) and run
+            <strong>leave-one-donor-out</strong> (dropping AZ, CO, or FL in turn) to test whether results depend on any single state.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Questions -->
+    <section id="questions" class="section">
+      <div class="section-header"><h2>Research Questions</h2><span class="section-tag">Q1&ndash;Q10</span></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Q</th><th>Question</th><th>Domain</th><th>Source</th><th>Coverage</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Q1</td><td>Did caps reduce occupied-rent growth?</td><td>Rent</td><td>ACS</td><td>2015-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q2</td><td>Did caps reduce renter cost burden?</td><td>Affordability</td><td>ACS</td><td>2015-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q3</td><td>Did caps increase residential stability?</td><td>Mobility</td><td>ACS</td><td>2015-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q4</td><td>Did caps reduce housing supply?</td><td>Supply</td><td>BPS</td><td>2010-2024</td><td><span class="badge badge-green">Answered</span></td></tr>
+            <tr><td class="highlight">Q5</td><td>Did caps change housing prices?</td><td>Capitalization</td><td>FHFA</td><td>2010-2025</td><td><span class="badge badge-green">Answered</span></td></tr>
+            <tr><td class="highlight">Q6</td><td>Did caps change labor-market outcomes?</td><td>Labor</td><td>QCEW</td><td>2014-2024</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q7</td><td>Larger effects where burden was higher?</td><td>Heterogeneity</td><td>ACS+ES</td><td>CA vs. OR</td><td><span class="badge badge-orange">Suggestive</span></td></tr>
+            <tr><td class="highlight">Q8</td><td>Larger effects where supply was constrained?</td><td>Heterogeneity</td><td>BPS+ES</td><td>CA vs. OR</td><td><span class="badge badge-orange">Suggestive</span></td></tr>
+            <tr><td class="highlight">Q9</td><td>Did impacts differ across outcome domains?</td><td>Cross-domain</td><td>All</td><td>Varies</td><td><span class="badge badge-blue">Summary</span></td></tr>
+            <tr><td class="highlight">Q10</td><td>Were CA and OR similar enough to pool?</td><td>Poolability</td><td>All</td><td>Full</td><td><span class="badge badge-green">Answered</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results" class="section">
+      <div class="section-header"><h2>Cross-Outcome Results</h2><span class="section-tag">Baseline pooled estimates</span></div>
+
+      <div class="chart-container">
+        <h3>Post-Treatment Shift by Outcome</h3>
+        <p class="chart-subtitle">Each bar shows the average post-treatment event-study coefficient as a percentage of the treated pre-policy mean. Outcomes are grouped by data source and domain.</p>
+        <div class="chart-canvas-wrap tall"><canvas id="crossOutcomeChart"></canvas></div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#537ec5;"></span> Supply (BPS)</div>
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#27ae60;"></span> Capitalization (FHFA)</div>
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e67e22;"></span> ACS outcomes</div>
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#c0392b;"></span> Labor (QCEW)</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Domain</th><th>Outcome</th><th>What it measures</th><th>Source</th><th class="num">Pre-mean</th><th class="num">Post shift</th><th class="num">% of mean</th><th>Grade</th></tr></thead>
+          <tbody>
+            <tr><td>Supply</td><td class="highlight">Total permits</td><td>New privately-owned housing units authorized by building permits (annual, state-level)</td><td>BPS</td><td class="num">51,845</td><td class="num">-12,819</td><td class="num">-24.7%</td><td><span class="badge badge-green">Answered</span></td></tr>
+            <tr><td>Supply</td><td class="highlight">5+ unit permits</td><td>Permits for buildings with 5 or more units (multifamily construction)</td><td>BPS</td><td class="num">23,890</td><td class="num">-5,044</td><td class="num">-21.1%</td><td><span class="badge badge-green">Answered</span></td></tr>
+            <tr><td>Supply</td><td>Multifamily share</td><td>Fraction of total permits going to 5+ unit buildings</td><td>BPS</td><td class="num">0.459</td><td class="num">-0.041</td><td class="num">-8.9%</td><td><span class="badge badge-green">Answered</span></td></tr>
+            <tr><td>Capitalization</td><td class="highlight">FHFA HPI</td><td>Purchase-only house price index (seasonally adjusted), measuring home sale price trends</td><td>FHFA</td><td class="num">261.4</td><td class="num">-18.7</td><td class="num">-7.1%</td><td><span class="badge badge-green">Answered</span></td></tr>
+            <tr><td>Rent level</td><td>Median gross rent</td><td>Median monthly rent paid by current occupants (not asking rents or new-lease prices)</td><td>ACS</td><td class="num">$1,270</td><td class="num">-$9</td><td class="num">-0.7%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td>Affordability</td><td>Rent burden 30%+</td><td>Share of renter households paying 30% or more of income toward rent</td><td>ACS</td><td class="num">53.1%</td><td class="num">-0.5 pp</td><td class="num">-1.0%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td>Stability</td><td>Same house 1yr</td><td>Share of population living in the same house as one year ago (residential stability)</td><td>ACS</td><td class="num">85.0%</td><td class="num">+0.3 pp</td><td class="num">+0.4%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td>Stability</td><td>Moved last year</td><td>Share of population that moved within the past year</td><td>ACS</td><td class="num">15.0%</td><td class="num">-0.3 pp</td><td class="num">-2.1%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td>Stability</td><td>Moved diff state</td><td>Share that moved from a different state in the past year (interstate migration)</td><td>ACS</td><td class="num">2.3%</td><td class="num">+0.7 pp</td><td class="num">+31.7%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td>Tenure</td><td>Renter share</td><td>Share of occupied housing units that are renter-occupied</td><td>ACS</td><td class="num">42.2%</td><td class="num">+0.4 pp</td><td class="num">+0.9%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td>Labor</td><td>QCEW weekly wage</td><td>Average weekly wage across all covered employers (total private + government)</td><td>QCEW</td><td class="num">$1,115</td><td class="num">+$42</td><td class="num">+3.8%</td><td><span class="badge badge-orange">Exploratory</span></td></tr>
+            <tr><td>Labor</td><td>QCEW employment</td><td>Total covered employment level (workers covered by unemployment insurance)</td><td>QCEW</td><td class="num">9,999K</td><td class="num">-235K</td><td class="num">-2.3%</td><td><span class="badge badge-orange">Exploratory</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="insight-box"><p><strong>Evidence grading:</strong> <span class="badge badge-green">Answered</span> = full coverage, clean pre-trends, all checks run. <span class="badge badge-yellow">Limited</span> = informative but coverage gaps or pre-trend issues reduce confidence. <span class="badge badge-orange">Exploratory</span> = short pre-period or contaminated placebo; directional only.</p></div>
+    </section>
+
+    <!-- CA vs OR -->
+    <section id="ca-or" class="section">
+      <div class="section-header"><h2>California vs. Oregon</h2><span class="section-tag">State-specific interactions</span></div>
+      <div class="chart-container">
+        <h3>Post-Treatment Effects by State</h3>
+        <p class="chart-subtitle">Average post-treatment coefficient as percent of each state&rsquo;s own pre-policy mean, from state-specific event-time interactions. With only two treated states, these are descriptive contrasts.</p>
+        <div class="chart-canvas-wrap tall"><canvas id="stateContrastChart"></canvas></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Outcome</th><th>Domain</th><th class="num">CA pre-mean</th><th class="num">CA post (%)</th><th class="num">OR pre-mean</th><th class="num">OR post (%)</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Total permits</td><td>Supply</td><td class="num">85,114</td><td class="num">-12.9%</td><td class="num">14,879</td><td class="num">-96.4%</td></tr>
+            <tr><td class="highlight">5+ unit permits</td><td>Supply</td><td class="num">40,020</td><td class="num">-11.7%</td><td class="num">5,968</td><td class="num">-95.6%</td></tr>
+            <tr><td>Multifamily share</td><td>Supply</td><td class="num">0.503</td><td class="num">-6.7%</td><td class="num">0.410</td><td class="num">-12.3%</td></tr>
+            <tr><td class="highlight">FHFA HPI</td><td>Capitalization</td><td class="num">215.8</td><td class="num">-20.1%</td><td class="num">312.1</td><td class="num">+1.0%</td></tr>
+            <tr><td>Median gross rent</td><td>Rent</td><td class="num">$1,453</td><td class="num">+0.6%</td><td class="num">$1,042</td><td class="num">-2.5%</td></tr>
+            <tr><td>Rent burden 30%+</td><td>Affordability</td><td class="num">54.8%</td><td class="num">-2.0%</td><td class="num">51.0%</td><td class="num">+0.3%</td></tr>
+            <tr><td>QCEW employment</td><td>Labor</td><td class="num">16.8M</td><td class="num">-1.7%</td><td class="num">1.8M</td><td class="num">-8.7%</td></tr>
+            <tr><td>QCEW weekly wage</td><td>Labor</td><td class="num">$1,248</td><td class="num">+6.3%</td><td class="num">$956</td><td class="num">+1.4%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="warning-box"><p>California has higher rents, more renters, and lower per-renter permit rates. The FHFA signal is driven almost entirely by California (&minus;20.1% vs. +1.0%). Oregon shows a massive proportional permit decline (&minus;96%) but near-zero HPI movement. These reflect different baselines, not a powered test of moderating mechanisms.</p></div>
+    </section>
+
+    <!-- Profiles -->
+    <section id="profiles" class="section">
+      <div class="section-header"><h2>Pre-Policy State Profiles</h2><span class="section-tag">2015&ndash;2018 means</span></div>
+      <div class="chart-container">
+        <h3>Permits per 1,000 Renter Households</h3>
+        <p class="chart-subtitle">New housing permits relative to the renter population, showing how supply-constrained each state was before policy adoption. Lower values indicate tighter supply relative to demand.</p>
+        <div class="chart-canvas-wrap"><canvas id="profileChart"></canvas></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>State</th><th>Role</th><th class="num">Burden 30%+</th><th class="num">Renter share</th><th class="num">Median rent</th><th class="num">Permits/1K</th><th class="num">FHFA HPI</th></tr></thead>
+          <tbody>
+            <tr class="highlight"><td><strong>California</strong></td><td>Treated</td><td class="num">55.2%</td><td class="num">45.8%</td><td class="num">$1,453</td><td class="num">18.0</td><td class="num">249.2</td></tr>
+            <tr class="highlight"><td><strong>Oregon</strong></td><td>Treated</td><td class="num">51.0%</td><td class="num">38.0%</td><td class="num">$1,042</td><td class="num">32.0</td><td class="num">370.3</td></tr>
+            <tr><td>Arizona</td><td>Donor</td><td class="num">48.0%</td><td class="num">36.4%</td><td class="num">&mdash;</td><td class="num">39.6</td><td class="num">276.5</td></tr>
+            <tr><td>Colorado</td><td>Donor</td><td class="num">51.6%</td><td class="num">35.3%</td><td class="num">&mdash;</td><td class="num">51.4</td><td class="num">390.8</td></tr>
+            <tr><td>Florida</td><td>Donor</td><td class="num">56.5%</td><td class="num">35.3%</td><td class="num">&mdash;</td><td class="num">45.9</td><td class="num">265.1</td></tr>
+            <tr><td>Georgia</td><td>Donor</td><td class="num">49.1%</td><td class="num">37.5%</td><td class="num">&mdash;</td><td class="num">37.3</td><td class="num">209.9</td></tr>
+            <tr><td>Idaho</td><td>Donor</td><td class="num">46.2%</td><td class="num">30.5%</td><td class="num">&mdash;</td><td class="num">69.0</td><td class="num">274.4</td></tr>
+            <tr><td>North Carolina</td><td>Donor</td><td class="num">47.6%</td><td class="num">35.4%</td><td class="num">&mdash;</td><td class="num">45.8</td><td class="num">212.8</td></tr>
+            <tr><td>Nevada</td><td>Donor</td><td class="num">49.5%</td><td class="num">44.4%</td><td class="num">&mdash;</td><td class="num">36.1</td><td class="num">217.1</td></tr>
+            <tr><td>Tennessee</td><td>Donor</td><td class="num">47.5%</td><td class="num">34.4%</td><td class="num">&mdash;</td><td class="num">40.6</td><td class="num">230.3</td></tr>
+            <tr><td>Texas</td><td>Donor</td><td class="num">47.9%</td><td class="num">38.5%</td><td class="num">&mdash;</td><td class="num">48.0</td><td class="num">256.3</td></tr>
+            <tr><td>Utah</td><td>Donor</td><td class="num">44.5%</td><td class="num">30.2%</td><td class="num">&mdash;</td><td class="num">78.4</td><td class="num">349.1</td></tr>
+            <tr><td>Virginia</td><td>Donor</td><td class="num">48.5%</td><td class="num">34.3%</td><td class="num">&mdash;</td><td class="num">29.2</td><td class="num">235.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Credibility -->
+    <section id="credibility" class="section">
+      <div class="section-header"><h2>Credibility Checks</h2><span class="section-tag">Robustness battery</span></div>
+      <div class="chart-container">
+        <h3>Specifications Completed by Outcome</h3>
+        <p class="chart-subtitle">Number of distinct robustness specifications run for each outcome. FHFA and QCEW include quarterly timing checks; permit and ACS outcomes are annual only.</p>
+        <div class="chart-canvas-wrap"><canvas id="credibilityChart"></canvas></div>
+      </div>
+      <div class="card-grid card-grid-3">
+        <div class="card"><h3>Placebo Timing</h3><p>Treatment shifted two years early. If the placebo produces significant post effects, the original estimate is less credible.</p></div>
+        <div class="card"><h3>Donor Sensitivity</h3><p>Western-only donor pool (AZ, CO, ID, NV, UT) and leave-one-donor-out (AZ, CO, FL each dropped).</p></div>
+        <div class="card"><h3>Single-State Models</h3><p>CA-only and OR-only event studies test whether pooled results are driven by one state.</p></div>
+        <div class="card"><h3>State Interactions</h3><p>Separate CA and OR event-time coefficients reveal heterogeneous responses.</p></div>
+        <div class="card"><h3>Quarterly Timing</h3><p>FHFA and QCEW under preferred (OR: 2019Q2) and alternative (OR: 2019Q1) treatment dates.</p></div>
+        <div class="card"><h3>Pre-Trend Tests</h3><p>Lead coefficients for each outcome. Clean pre-trends mean treated and donor states were on parallel paths before policy.</p></div>
+      </div>
+      <div class="insight-box"><p><strong>Pre-trend summary:</strong> Permits and FHFA have the cleanest pre-trends. Median gross rent has strongly negative leads at event times &minus;4 and &minus;3 (pre-treatment divergence). QCEW employment has a borderline negative lead at &minus;4. ACS outcomes are compressed by the narrow 2015&ndash;2019 pre-window.</p></div>
+    </section>
+
+    <!-- Data sources -->
+    <section id="data" class="section">
+      <div class="section-header"><h2>Data Sources</h2><span class="section-tag">All free, all federal</span></div>
+      <div class="chart-container">
+        <h3>Coverage Windows</h3>
+        <p class="chart-subtitle">Available data years by source. The ACS gap in 2020 is real: the Census Bureau did not release 1-year profiles that year due to pandemic-related data-collection disruptions.</p>
+        <div class="chart-canvas-wrap"><canvas id="coverageChart"></canvas></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Source</th><th>Agency</th><th>What it provides</th><th>Frequency</th><th>Coverage</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Building Permits Survey (BPS)</td><td>Census Bureau</td><td>New privately-owned housing units authorized by building permits, broken down by structure size</td><td>Annual</td><td>2010&ndash;2024</td></tr>
+            <tr><td class="highlight">House Price Index (HPI)</td><td>FHFA</td><td>Purchase-only, seasonally adjusted index of repeat-sale home prices</td><td>Annual + Quarterly</td><td>2010&ndash;2025</td></tr>
+            <tr><td class="highlight">ACS 1-Year Profiles</td><td>Census Bureau</td><td>Median gross rent, rent burden, renter share, residential mobility (3 measures)</td><td>Annual</td><td>2015&ndash;19, 21&ndash;24</td></tr>
+            <tr><td class="highlight">QCEW Area Slices</td><td>BLS</td><td>Total covered employment and average weekly wages for workers covered by unemployment insurance</td><td>Annual + Quarterly</td><td>2014&ndash;2024</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Methods -->
+    <section id="methods" class="section">
+      <div class="section-header"><h2>Methods</h2></div>
+      <div class="card-grid">
+        <div class="card"><h3>Specification</h3><p>Two-way fixed-effects (TWFE) event study at the state-year level. State fixed effects absorb permanent state differences. Year fixed effects absorb national trends. Event-time leads and lags identify the treatment path.</p></div>
+        <div class="card"><h3>Treatment Timing</h3><p><strong>Oregon:</strong> annual 2019, quarterly 2019Q2 (preferred) / 2019Q1 (alt).<br><strong>California:</strong> annual 2020, quarterly 2020Q1.<br><strong>Washington:</strong> descriptive only (2025).</p></div>
+      </div>
+      <div class="warning-box"><p>ACS 1-year profiles were not released for 2020. QCEW starts 2014. Only two treated states. ACS measures occupied rents, not asking rents. All estimates are state-level. Washington is descriptive only. This project does not claim to measure &ldquo;rent control&rdquo; as a general policy category.</p></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="footer-inner"><span>rentctrl &middot; MIT License &middot; Shane Wray 2026</span><a href="https://github.com/smkwray/rentctrl">GitHub</a></div></footer>
+
+  <script>
+    rcChartDefaults();
+    var charts = [];
+    function buildCharts() {
+      charts.forEach(function(c){ c.destroy(); }); charts = [];
+      var C = rcColors();
+
+      charts.push(new Chart(document.getElementById('crossOutcomeChart'), {
+        type:'bar', data:{labels:['Total permits','5+ unit permits','Multifamily share','FHFA HPI','Median gross rent','Rent burden 30%+','Same house 1yr','Moved last year','Moved diff state','Renter share','QCEW weekly wage','QCEW employment'],
+        datasets:[{label:'Avg post (%)',data:[-24.7,-21.1,-8.9,-7.1,-0.7,-1.0,0.4,-2.1,31.7,0.9,3.8,-2.3],backgroundColor:[C.accent,C.accent,C.accent,C.green,C.orange,C.orange,C.orange,C.orange,C.orange,C.orange,C.red,C.red],borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.x.toFixed(1)+'%';}}}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
+      }));
+
+      charts.push(new Chart(document.getElementById('stateContrastChart'), {
+        type:'bar', data:{labels:['Total permits','5+ permits','MF share','FHFA HPI','Median rent','Burden 30%+','QCEW empl','QCEW wage'],
+        datasets:[{label:'California',data:[-12.9,-11.7,-6.7,-20.1,0.6,-2.0,-1.7,6.3],backgroundColor:C.accent,borderRadius:4},{label:'Oregon',data:[-96.4,-95.6,-12.3,1.0,-2.5,0.3,-8.7,1.4],backgroundColor:C.green,borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.x.toFixed(1)+'%';}}}},scales:{x:{title:{display:true,text:'Avg post (% of state pre-policy mean)'},grid:{color:C.grid}},y:{grid:{display:false}}}}
+      }));
+
+      var ps=['CA','OR','AZ','CO','FL','GA','ID','NC','NV','TN','TX','UT','VA'];
+      var pp=[18.0,32.0,39.6,51.4,45.9,37.3,69.0,45.8,36.1,40.6,48.0,78.4,29.2];
+      charts.push(new Chart(document.getElementById('profileChart'), {
+        type:'bar', data:{labels:ps, datasets:[{label:'Permits/1K renter HH',data:pp,backgroundColor:ps.map(function(s){return(s==='CA'||s==='OR')?C.accent:C.muted;}),borderRadius:4}]},
+        options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y.toFixed(1)+' permits per 1,000 renter households';}}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Permits per 1,000 renter HH'},grid:{color:C.grid}},x:{grid:{display:false}}}}
+      }));
+
+      charts.push(new Chart(document.getElementById('credibilityChart'), {
+        type:'bar', data:{labels:['Permits (total)','Permits (5+)','MF share','FHFA HPI','Median rent','Rent burden','Same house','Moved last yr','Moved diff st','Renter share','QCEW empl','QCEW wage'],
+        datasets:[{label:'Specs',data:[9,9,9,11,9,9,9,9,9,9,11,11],backgroundColor:C.accent,borderRadius:4}]},
+        options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y+' specifications';}}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Specifications'},grid:{color:C.grid},ticks:{stepSize:2}},x:{grid:{display:false},ticks:{maxRotation:45,minRotation:45}}}}
+      }));
+
+      charts.push(new Chart(document.getElementById('coverageChart'), {
+        type:'bar', data:{labels:['BPS (permits)','FHFA HPI','ACS (2015-19)','ACS (2021-24)','QCEW'],
+        datasets:[{label:'Coverage',data:[[2009.5,2024.5],[2009.5,2025.5],[2014.5,2019.5],[2020.5,2024.5],[2013.5,2024.5]],backgroundColor:[C.accent,C.green,C.orange,C.orange,C.purple],borderRadius:4,barPercentage:0.6}]},
+        options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){var d=ctx.raw;return Math.round(d[0]+0.5)+' \u2013 '+Math.round(d[1]-0.5);}}}},scales:{x:{min:2009,max:2026,title:{display:true,text:'Year'},grid:{color:C.grid},ticks:{stepSize:2}},y:{grid:{display:false}}}}
+      }));
+    }
+    buildCharts();
+    window.rcRebuildCharts = function(){ rcChartDefaults(); buildCharts(); };
+    if (typeof rcInitScrollSpy === 'function') rcInitScrollSpy();
+  </script>
+</body>
+</html>

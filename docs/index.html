@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>rentctrl &mdash; Statewide Rent Caps and Housing Markets</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body data-page="home">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">rent<span class="logo-accent">ctrl</span></a>
+      <div class="header-controls">
+        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+        <button id="themeToggle" class="theme-toggle" onclick="rcToggleTheme()" aria-label="Toggle theme">&#9790;</button>
+      </div>
+      <nav><ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="states.html">States</a></li>
+        <li><a href="cities.html">Cities</a></li>
+      </ul></nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Statewide Rent Caps &amp; Housing Markets</h1>
+      <p class="subtitle">
+        Did statewide rent caps in Oregon and California measurably change housing supply,
+        home prices, affordability, or residential stability? This project uses free federal data,
+        a two-way fixed-effects event study, and a full robustness battery to find out &mdash;
+        then extends to building-level analysis in twelve U.S. cities.
+      </p>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Treated States</div></div>
+        <div class="stat-card"><div class="stat-value">11</div><div class="stat-label">Donor States</div></div>
+        <div class="stat-card"><div class="stat-value">13</div><div class="stat-label">Outcomes Tracked</div></div>
+        <div class="stat-card"><div class="stat-value">89,100</div><div class="stat-label">NYC Buildings</div></div>
+        <div class="stat-card"><div class="stat-value">12</div><div class="stat-label">City Audits</div></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="content">
+
+    <!-- About -->
+    <section class="section">
+      <div class="section-header"><h2>About This Project</h2></div>
+      <p>
+        Oregon&rsquo;s <strong>SB&nbsp;608</strong> (effective February 2019) caps annual rent increases at CPI&nbsp;+&nbsp;7 percentage points
+        on most units over 15 years old. California&rsquo;s <strong>AB&nbsp;1482</strong> (effective January 2020) imposes a similar cap of
+        CPI&nbsp;+&nbsp;5 pp. This project estimates whether these policies changed housing permits, home prices,
+        rents, affordability, residential mobility, and labor-market conditions &mdash; using only free,
+        publicly available data from the Census Bureau, FHFA, and BLS, with eleven comparison states
+        that had no statewide cap during the sample period.
+      </p>
+      <p>
+        Beyond statewide estimates, the project extends to <strong>building-level analysis</strong> in twelve cities.
+        The strongest local package is <strong>New York City</strong>, where 89,100 buildings are tracked across
+        six distinct modeling approaches using HPD housing violations and Rent Stabilized Building Lists.
+      </p>
+    </section>
+
+    <!-- Statewide key findings -->
+    <section class="section">
+      <div class="section-header"><h2>Statewide Key Findings</h2></div>
+      <p>Pooled event-study estimates for Oregon and California relative to 11 donor states. Values show the average post-treatment coefficient as a percentage of the treated pre-policy mean. Evidence quality varies by domain.</p>
+      <div class="finding-grid">
+        <div class="finding-card">
+          <div class="fc-value negative">&minus;24.7%</div>
+          <div class="fc-label">Housing Permits</div>
+          <div class="fc-source">Census Building Permits Survey, 2010&ndash;2024</div>
+        </div>
+        <div class="finding-card">
+          <div class="fc-value negative">&minus;7.1%</div>
+          <div class="fc-label">House Price Index</div>
+          <div class="fc-source">FHFA Purchase-Only HPI, 2010&ndash;2025</div>
+        </div>
+        <div class="finding-card">
+          <div class="fc-value neutral">&minus;0.7%</div>
+          <div class="fc-label">Occupied Rent</div>
+          <div class="fc-source">ACS 1-Year Profiles, 2015&ndash;19 &amp; 21&ndash;24</div>
+        </div>
+        <div class="finding-card">
+          <div class="fc-value neutral">&minus;2.3%</div>
+          <div class="fc-label">Covered Employment</div>
+          <div class="fc-source">BLS QCEW Area Slices, 2014&ndash;2024</div>
+        </div>
+      </div>
+      <div class="insight-box">
+        <p><strong>Strongest statewide outcomes:</strong> Housing supply (permits) and capitalization (FHFA HPI) have the cleanest pre-trends and most complete coverage. ACS rent and mobility outcomes are informative but limited by the missing 2020 survey year. QCEW employment and wage outcomes remain exploratory due to a short pre-period starting in 2014.</p>
+      </div>
+    </section>
+
+    <!-- Cross-outcome chart -->
+    <section class="section">
+      <div class="chart-container">
+        <h3>Statewide Cross-Outcome Summary</h3>
+        <p class="chart-subtitle">Post-treatment shift across all 12 outcome variables. Each bar shows the average post-treatment event-study coefficient as a percentage of the treated pre-policy mean.</p>
+        <div class="chart-canvas-wrap tall"><canvas id="crossOutcomeChart"></canvas></div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#537ec5;"></span> Supply (Building Permits Survey)</div>
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#27ae60;"></span> Capitalization (FHFA)</div>
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e67e22;"></span> ACS (rent, burden, mobility, tenure)</div>
+          <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#c0392b;"></span> Labor (QCEW)</div>
+        </div>
+        <p class="chart-note">Magnitudes are not directly comparable across domains &mdash; coverage windows, evidence quality, and pre-trend reliability differ. See <a href="states.html">States</a> for full tables and robustness checks.</p>
+      </div>
+    </section>
+
+    <!-- NYC headline results -->
+    <section class="section">
+      <div class="section-header"><h2>NYC Building-Level Results</h2><span class="section-tag">Strongest local package</span></div>
+      <p>
+        The NYC extension links the official <strong>Rent Stabilized Building List</strong> (RGB, 2024) to the
+        <strong>HPD violations database</strong> (NYC Department of Housing Preservation and Development) at the
+        building level using borough-block-lot identifiers. HPD violations are code-enforcement records
+        filed when inspectors find conditions like heat/hot-water failures, lead paint, pests, or structural
+        defects. The analysis tracks 32,793 stabilized buildings against 56,307 non-stabilized controls
+        across six modeling approaches, all since 2019.
+      </p>
+
+      <div class="chart-container">
+        <h3>Building Fixed-Effects Event Profile</h3>
+        <p class="chart-subtitle">
+          Estimated differential in mean HPD violations per building-year between rent-stabilized and
+          non-stabilized buildings, relative to the 2019 baseline. Building fixed effects absorb all
+          time-invariant building characteristics. 89,100 buildings, 623,700 building-year observations.
+          Cluster-robust standard errors.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="nycFEChart"></canvas></div>
+        <p class="chart-note">All coefficients significant at p&lt;0.001. The widening gap suggests stabilized buildings accumulated violations faster than non-stabilized controls, though this is design-sensitive and not a settled causal claim.</p>
+      </div>
+
+      <div class="chart-container">
+        <h3>Mean Violations: Stabilized vs. Non-Stabilized Buildings</h3>
+        <p class="chart-subtitle">
+          Average HPD violation count per building per year. &ldquo;Stabilized&rdquo; = appears on the 2024 RGB
+          Rent Stabilized Building List. &ldquo;Non-stabilized&rdquo; = registered with HPD but not on the
+          stabilized list.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="nycLevelChart"></canvas></div>
+      </div>
+
+      <div class="warning-box">
+        <p>NYC results are design-sensitive. Simpler models (borough-year) show larger effects; tightly matched designs (within-community-board, refined matching with 28,746 pairs) show effects near zero. The building-FE model falls between these extremes. These are not settled causal estimates.</p>
+      </div>
+    </section>
+
+    <!-- Gateway cards -->
+    <section class="section">
+      <div class="gateway-grid">
+        <div class="gateway-card">
+          <h3>Statewide Analysis</h3>
+          <p>
+            Pooled TWFE event-study estimates for Oregon and California across 13 outcome variables
+            from four federal data sources. Full robustness battery: placebo timing, donor-pool
+            sensitivity, single-state models, state interactions, and quarterly timing checks.
+          </p>
+          <div class="gateway-stats">
+            <div class="gateway-stat"><div class="gs-value">13</div><div class="gs-label">Outcomes</div></div>
+            <div class="gateway-stat"><div class="gs-value">116</div><div class="gs-label">Specifications</div></div>
+            <div class="gateway-stat"><div class="gs-value">4</div><div class="gs-label">Data Sources</div></div>
+          </div>
+          <a href="states.html" class="cta-btn">Explore statewide results &rarr;</a>
+        </div>
+        <div class="gateway-card">
+          <h3>City Extensions</h3>
+          <p>
+            Building-level analysis across twelve cities. NYC tracks 89,100 buildings through six
+            modeling approaches. Oakland has a near-full administrative panel with 3,805 RAP case rows
+            linked to 311 enforcement data. San Francisco, West Hollywood, and Los Angeles have upgraded
+            inventory, linkage, and pilot packages.
+          </p>
+          <div class="gateway-stats">
+            <div class="gateway-stat"><div class="gs-value">12</div><div class="gs-label">Cities Audited</div></div>
+            <div class="gateway-stat"><div class="gs-value">6</div><div class="gs-label">Model Approaches (NYC)</div></div>
+            <div class="gateway-stat"><div class="gs-value">14</div><div class="gs-label">Research Questions</div></div>
+          </div>
+          <a href="cities.html" class="cta-btn">Explore city extensions &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reproducibility -->
+    <section class="section">
+      <div class="card">
+        <h3 style="margin-top:0;">Reproducibility</h3>
+        <p style="margin-bottom:0;">Every data source is free and federally published. Every download is scripted. The full pipeline &mdash; from raw data through panel construction, event-study estimation, and robustness battery &mdash; can be reproduced from scratch. See the <a href="https://github.com/smkwray/rentctrl">GitHub repository</a> for setup instructions and the complete test suite.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="footer-inner"><span>rentctrl &middot; MIT License &middot; Shane Wray 2026</span><a href="https://github.com/smkwray/rentctrl">GitHub</a></div></footer>
+
+  <script>
+    rcChartDefaults();
+    var charts = [];
+    function buildCharts() {
+      charts.forEach(function(c){ c.destroy(); });
+      charts = [];
+      var C = rcColors();
+
+      /* Cross-outcome bar */
+      charts.push(new Chart(document.getElementById('crossOutcomeChart'), {
+        type:'bar',
+        data:{ labels:['Total permits','5+ unit permits','Multifamily share','FHFA HPI','Median gross rent','Rent burden 30%+','Same house 1yr','Moved last year','Moved diff state','Renter share','QCEW weekly wage','QCEW employment'],
+        datasets:[{label:'Avg post (% of pre-policy mean)',data:[-24.7,-21.1,-8.9,-7.1,-0.7,-1.0,0.4,-2.1,31.7,0.9,3.8,-2.3],backgroundColor:[C.accent,C.accent,C.accent,C.green,C.orange,C.orange,C.orange,C.orange,C.orange,C.orange,C.red,C.red],borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.x.toFixed(1)+'%';}}}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
+      }));
+
+      /* NYC Building FE event profile */
+      charts.push(new Chart(document.getElementById('nycFEChart'), {
+        type:'bar',
+        data:{
+          labels:['2019 (ref)','2020','2021','2022','2023','2024','2025'],
+          datasets:[{
+            label:'Differential vs. 2019 baseline',
+            data:[0, 0.18, 0.44, 0.36, 1.01, 2.14, 4.20],
+            backgroundColor: [C.muted, C.accent, C.accent, C.accent, C.accent, C.accent, C.accent],
+            borderRadius: 4
+          }]
+        },
+        options:{
+          responsive:true,
+          plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return '+'+ctx.parsed.y.toFixed(2)+' additional violations per building';}}} },
+          scales:{
+            y:{ beginAtZero:true, title:{display:true,text:'Additional violations per building vs. 2019'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* NYC violation levels */
+      charts.push(new Chart(document.getElementById('nycLevelChart'), {
+        type:'line',
+        data:{
+          labels:['2019','2020','2021','2022','2023','2024','2025'],
+          datasets:[
+            { label:'Stabilized (32,793 buildings)', data:[1.33,1.22,2.24,2.49,3.17,4.65,7.27], borderColor:C.accent, backgroundColor:C.accent+'33', fill:false, tension:0.3, pointRadius:5, borderWidth:2.5 },
+            { label:'Non-stabilized (56,307 buildings)', data:[0.76,0.48,1.23,1.57,1.59,1.94,2.51], borderColor:C.green, backgroundColor:C.green+'33', fill:false, tension:0.3, pointRadius:5, borderWidth:2.5 }
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{ tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label.split('(')[0].trim()+': '+ctx.parsed.y.toFixed(2)+' violations/building';}}} },
+          scales:{
+            y:{ beginAtZero:true, title:{display:true,text:'Mean violations per building'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+    }
+    buildCharts();
+    window.rcRebuildCharts = function(){ rcChartDefaults(); buildCharts(); };
+  </script>
+</body>
+</html>

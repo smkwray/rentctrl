@@ -1,0 +1,30 @@
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:        violation_count   R-squared (uncentered):                   0.010
+Model:                            OLS   Adj. R-squared (uncentered):              0.010
+Method:                 Least Squares   F-statistic:                              203.3
+Date:                Sun, 15 Mar 2026   Prob (F-statistic):                   1.43e-258
+Time:                        08:19:20   Log-Likelihood:                     -2.0666e+06
+No. Observations:              623700   AIC:                                  4.133e+06
+Df Residuals:                  623694   BIC:                                  4.133e+06
+Df Model:                           6                                                  
+Covariance Type:              cluster                                                  
+==================================================================================
+                     coef    std err          z      P>|z|      [0.025      0.975]
+----------------------------------------------------------------------------------
+treated_x_2020     0.1816      0.034      5.418      0.000       0.116       0.247
+treated_x_2021     0.4435      0.049      9.038      0.000       0.347       0.540
+treated_x_2022     0.3580      0.052      6.912      0.000       0.256       0.459
+treated_x_2023     1.0138      0.057     17.874      0.000       0.903       1.125
+treated_x_2024     2.1428      0.081     26.547      0.000       1.985       2.301
+treated_x_2025     4.1978      0.126     33.197      0.000       3.950       4.446
+==============================================================================
+Omnibus:                  1210513.624   Durbin-Watson:                   1.744
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):      18181114661.342
+Skew:                          14.572   Prob(JB):                         0.00
+Kurtosis:                     838.919   Cond. No.                         2.65
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors are robust to cluster correlation (cluster)

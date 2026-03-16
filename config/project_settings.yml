@@ -1,0 +1,37 @@
+project_name: rent-control-public-data-starter
+preferred_design: statewide-cap-event-study
+core_treated_states:
+  - California
+  - Oregon
+descriptive_extension_states:
+  - Washington
+initial_donor_pool:
+  - Arizona
+  - Colorado
+  - Florida
+  - Georgia
+  - Idaho
+  - Nevada
+  - North Carolina
+  - Tennessee
+  - Texas
+  - Utah
+  - Virginia
+annual_window:
+  start_year: 2010
+  end_year: 2025
+quarterly_window:
+  start_period: 2010Q1
+  end_period: 2025Q4
+stop_rules:
+  - Do not start local city case studies until the core state panel builds end-to-end.
+  - Do not search for new bespoke data unless it fills one of the core outcomes in outcome_catalog.csv.
+  - Treat Washington as descriptive only until at least one additional full post-policy data year is available.
+preferred_core_outcomes:
+  - median_gross_rent
+  - rent_burden_30_plus_pct
+  - same_house_1y_pct
+  - permits_units_total
+  - permits_units_5plus
+  - fhfa_hpi_purchase_only
+  - qcew_total_covered_employment

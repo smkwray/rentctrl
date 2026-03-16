@@ -1,0 +1,14 @@
+outcome_name,source,geography,frequency,phase,notes
+median_gross_rent,ACS 1-year profile,state,annual,core,occupied-rent outcome
+rent_burden_30_plus_pct,ACS 1-year profile,state,annual,core,affordability burden outcome
+same_house_1y_pct,ACS 1-year profile,state,annual,core,residential stability
+moved_last_year_pct,ACS 1-year profile,state,annual,core,mobility
+renter_share_pct,ACS 1-year profile,state,annual,core,market composition
+permits_units_total,Census Building Permits Survey,state,annual,core,supply response
+permits_units_5plus,Census Building Permits Survey,state,annual,core,multifamily supply response
+permits_units_multifamily_share,Census Building Permits Survey,state,annual,core,structure mix
+fhfa_hpi_purchase_only,FHFA HPI,state,quarterly + annual,core,capitalization / price response
+qcew_total_covered_employment,QCEW,state,quarterly + annual,core,labor-market outcome
+qcew_total_covered_avg_weekly_wage,QCEW,state,quarterly + annual,core,labor-market outcome
+eviction_filings,Eviction Lab,state/city,monthly,extension,formal eviction channel
+violations_or_code_issues,NYC HPD / local open data,building / small area,daily -> annual,extension,quality / maintenance channel

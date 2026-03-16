@@ -1,0 +1,16 @@
+metric,value
+search_street_name,MAIN
+search_street_no,
+properties_sampled,5
+properties_with_rent_registration,3
+properties_with_case_history,5
+total_cases,103
+mean_total_units,92.8
+median_year_built,1917.0
+case_type_complaint,77
+case_type_emergency,6
+case_type_franchise_tax_board,1
+case_type_property_management_training_program,1
+case_type_substandard,1
+case_type_systematic_code_enforcement_program,16
+case_type_task_force,1

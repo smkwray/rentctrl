@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>rentctrl &mdash; City Extensions</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body data-page="cities">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">rent<span class="logo-accent">ctrl</span></a>
+      <div class="header-controls">
+        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+        <button id="themeToggle" class="theme-toggle" onclick="rcToggleTheme()" aria-label="Toggle theme">&#9790;</button>
+      </div>
+      <nav><ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="states.html">States</a></li>
+        <li><a href="cities.html">Cities</a></li>
+      </ul></nav>
+    </div>
+  </header>
+
+  <section class="hero hero-sm">
+    <div class="hero-inner">
+      <h1>City Extensions</h1>
+      <p class="subtitle">
+        Building-level and administrative-record analysis across twelve U.S. cities with legacy
+        or modern rent-regulation systems. Six Tier&nbsp;1 cities have completed audits with active research questions.
+      </p>
+    </div>
+  </section>
+
+  <main class="content">
+
+    <div class="page-nav">
+      <a href="#nyc" class="active">NYC</a>
+      <a href="#san-francisco">San Francisco</a>
+      <a href="#west-hollywood">West Hollywood</a>
+      <a href="#los-angeles">Los Angeles</a>
+      <a href="#oakland">Oakland</a>
+      <a href="#saint-paul">Saint Paul</a>
+      <a href="#san-jose">San Jose</a>
+      <a href="#other-cities">Other Cities</a>
+      <a href="#audit">Audit Status</a>
+    </div>
+
+    <!-- ═══ NYC ═══ -->
+    <section id="nyc" class="section">
+      <div class="section-header"><h2>New York City</h2><span class="section-tag">Strongest local package</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          NYC has approximately 1 million rent-stabilized apartments. The <strong>Rent Guidelines Board (RGB)</strong>
+          publishes an annual <strong>Rent Stabilized Building List (RSBL)</strong> identifying every building
+          with at least one stabilized unit by borough, block, and lot number.
+        </p>
+        <p>
+          The <strong>NYC Department of Housing Preservation and Development (HPD)</strong> maintains a public
+          database of <strong>housing code violations</strong> &mdash; records filed when inspectors find conditions
+          like heat/hot-water failures, lead paint hazards, pest infestations, mold, or structural defects.
+          Each violation is tied to a specific building.
+        </p>
+        <p>
+          This analysis joins the two datasets at the building level (borough + block + lot) to ask:
+          <em>do buildings on the stabilized list accumulate HPD violations at a different rate than
+          non-stabilized buildings?</em> The answer is explored through six distinct modeling approaches,
+          each with different assumptions about what makes a valid comparison group.
+        </p>
+      </div>
+
+      <!-- Building FE event profile -->
+      <div class="chart-container">
+        <h3>Building Fixed-Effects Event Profile</h3>
+        <p class="chart-subtitle">
+          Estimated additional HPD violations per building-year in stabilized vs. non-stabilized buildings,
+          relative to the 2019 baseline. Building fixed effects absorb all time-invariant differences between
+          buildings (location, age, size, ownership). Cluster-robust standard errors. All coefficients
+          p&lt;0.001.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="nycFEChart"></canvas></div>
+        <p class="chart-note">89,100 buildings (32,793 stabilized, 56,307 non-stabilized), 623,700 building-year observations, 2019&ndash;2025.</p>
+      </div>
+
+      <!-- Violation levels -->
+      <div class="chart-container">
+        <h3>Mean HPD Violations per Building</h3>
+        <p class="chart-subtitle">
+          Average violation count per building per year. Both groups show increasing violations over time,
+          but the gap between stabilized and non-stabilized buildings widens substantially after 2022.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="nycLevelChart"></canvas></div>
+      </div>
+
+      <!-- Borough breakdown -->
+      <div class="chart-container">
+        <h3>Violation Gap by Borough</h3>
+        <p class="chart-subtitle">
+          Difference in mean violations per building (stabilized minus non-stabilized) by borough and year.
+          The Bronx shows the largest and fastest-growing gap; Manhattan and Brooklyn show intermediate patterns.
+        </p>
+        <div class="chart-canvas-wrap tall"><canvas id="nycBoroughChart"></canvas></div>
+      </div>
+
+      <!-- Six approaches summary -->
+      <div class="section-header" style="margin-top:2rem;"><h3 style="margin:0;">Six Modeling Approaches</h3></div>
+      <p>Each approach uses a different comparison strategy. Simpler designs show larger effects; tighter matching reduces effect sizes, illustrating design sensitivity.</p>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Approach</th><th>What it does</th><th class="num">Buildings</th><th class="num">2025 gap</th><th>Finding</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Borough-year descriptive</td><td>Compares means within borough and year, no controls</td><td class="num">89,100</td><td class="num">4.76</td><td>Largest gap, grows every year</td></tr>
+            <tr><td class="highlight">Borough-year WLS model</td><td>Weighted regression on borough-year cells with treatment interaction</td><td class="num">89,100</td><td class="num">4.79 coef</td><td>Significant treatment &times; 2025 (p=0.009)</td></tr>
+            <tr><td class="highlight">Stratified comparison</td><td>Matches within borough &times; community board &times; building age &times; size strata</td><td class="num">89,100</td><td class="num">4.76</td><td>2.9&times; treated/control ratio by 2025</td></tr>
+            <tr><td>Within-community-board match</td><td>Nearest-neighbor matching within community boards (16,406 pairs)</td><td class="num">32,812</td><td class="num">varies</td><td>Pre-period imbalance; treated lower at baseline</td></tr>
+            <tr><td>Refined CB match</td><td>Improved matching with 28,746 pairs and better pre-period balance</td><td class="num">57,492</td><td class="num">&minus;0.14</td><td>Balance improves but effect near zero</td></tr>
+            <tr><td class="highlight">Building fixed effects</td><td>Building FE + year FE + treatment &times; year interactions, cluster SEs</td><td class="num">89,100</td><td class="num">+4.20 coef</td><td>Consistent upward trend, all p&lt;0.001</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warning-box"><p><strong>Design sensitivity:</strong> The borough-year and building-FE models show a large, growing gap. But the refined within-community-board match (28,746 well-balanced pairs) shows effects near zero by 2025. This means the result depends heavily on what comparison group is used and how unobserved confounders are handled. These are not settled causal estimates.</p></div>
+    </section>
+
+    <!-- ═══ San Francisco ═══ -->
+    <section id="san-francisco" class="section">
+      <div class="section-header"><h2>San Francisco</h2><span class="section-tag">Inventory / Compliance Result</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          San Francisco&rsquo;s Rent Board publishes a block-anonymized rental inventory dataset covering
+          all registered units. This package documents <strong>533,205 unit rows</strong> across five submission years
+          (2022&ndash;2026), providing stock composition, geographic concentration, occupancy mix, and rent-band
+          reporting across <strong>41 neighborhoods</strong> and <strong>11 supervisor districts</strong>.
+        </p>
+      </div>
+
+      <div class="city-stats">
+        <div class="city-stat"><div class="cs-value">533,205</div><div class="cs-label">Unit Rows</div></div>
+        <div class="city-stat"><div class="cs-value">2022&ndash;26</div><div class="cs-label">Submission Years</div></div>
+        <div class="city-stat"><div class="cs-value">4,277</div><div class="cs-label">Census Blocks</div></div>
+        <div class="city-stat"><div class="cs-value">41</div><div class="cs-label">Neighborhoods</div></div>
+        <div class="city-stat"><div class="cs-value">$2,375</div><div class="cs-label">Median Rent Midpoint</div></div>
+        <div class="city-stat"><div class="cs-value">468,062</div><div class="cs-label">Non-Owner Rows</div></div>
+      </div>
+
+      <div class="chart-container">
+        <h3>Reporting Rollout by Submission Year</h3>
+        <p class="chart-subtitle">Unit rows and census-block coverage across five submission years. The 2022 launch covers 1,226 blocks; later years stabilize above 3,750.</p>
+        <div class="chart-canvas-wrap"><canvas id="sfRolloutChart"></canvas></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Year</th><th class="num">Unit Rows</th><th class="num">Blocks</th><th class="num">Neighborhoods</th><th class="num">Non-Owner Share</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">2022</td><td class="num">66,744</td><td class="num">1,226</td><td class="num">37</td><td class="num">88.8%</td></tr>
+            <tr><td class="highlight">2023</td><td class="num">107,886</td><td class="num">3,753</td><td class="num">38</td><td class="num">86.7%</td></tr>
+            <tr><td class="highlight">2024</td><td class="num">111,512</td><td class="num">3,809</td><td class="num">40</td><td class="num">85.9%</td></tr>
+            <tr><td class="highlight">2025</td><td class="num">132,088</td><td class="num">3,854</td><td class="num">41</td><td class="num">88.0%</td></tr>
+            <tr><td class="highlight">2026</td><td class="num">114,975</td><td class="num">3,764</td><td class="num">41</td><td class="num">89.8%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="insight-box"><p><strong>What this is:</strong> An inventory and compliance result documenting stock composition, geographic concentration, occupancy mix, and rent-band reporting. <strong>What it is not:</strong> A treatment-effects estimate. The source is block-anonymized and owner-reported. The 2022 submission year has narrower geographic coverage (1,226 blocks vs. 3,700+ later), reflecting the program&rsquo;s rollout.</p></div>
+    </section>
+
+    <!-- ═══ West Hollywood ═══ -->
+    <section id="west-hollywood" class="section">
+      <div class="section-header"><h2>West Hollywood</h2><span class="section-tag">Linked Administrative Result</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          West Hollywood&rsquo;s Rent Stabilization Ordinance (RSO) protects a defined stock of rental units.
+          This package links the <strong>protected-stock registry</strong> (17,175 unit rows, 5,959 addresses,
+          2,108 parcels) to three public administrative surfaces: <strong>buyout tracking</strong>,
+          <strong>seismic retrofit records</strong>, and <strong>commission appeal hearings</strong>. The result
+          documents the overlap between protected rental stock and each administrative layer.
+        </p>
+      </div>
+
+      <div class="city-stats">
+        <div class="city-stat"><div class="cs-value">17,175</div><div class="cs-label">Protected-Stock Rows</div></div>
+        <div class="city-stat"><div class="cs-value">5,959</div><div class="cs-label">Addresses</div></div>
+        <div class="city-stat"><div class="cs-value">2,108</div><div class="cs-label">Parcels</div></div>
+        <div class="city-stat"><div class="cs-value">14,763</div><div class="cs-label">Rows with Unit IDs</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Administrative Surface</th><th class="num">Matched</th><th class="num">Total</th><th class="num">Match Rate</th><th class="num">Stock Share</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Buyout tracking</td><td class="num">71</td><td class="num">206</td><td class="num">34.5%</td><td class="num">0.6%</td></tr>
+            <tr><td class="highlight">Seismic retrofit</td><td class="num">705</td><td class="num">851</td><td class="num">82.8%</td><td class="num">32.7%</td></tr>
+            <tr><td class="highlight">Commission appeals</td><td class="num">14</td><td class="num">34</td><td class="num">41.2%</td><td class="num">0.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="insight-box"><p><strong>What this is:</strong> A linked administrative result documenting protected-stock overlap with buyout agreements, seismic exemptions, and bounded appeal-board hearings. The seismic surface shows strong linkage (82.8%). Buyout and appeal surfaces are sparser but track real administrative activity. <strong>What it is not:</strong> A treatment-effects estimate. The hearings layer is bounded to the currently collected public archive. Match rates describe surface overlap, not causal relationships.</p></div>
+    </section>
+
+    <!-- ═══ Los Angeles ═══ -->
+    <section id="los-angeles" class="section">
+      <div class="section-header"><h2>Los Angeles</h2><span class="section-tag">Bounded Comparative Pilot</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          This pilot samples <strong>150 properties</strong> across a fixed tranche of <strong>8 street names</strong>
+          in central Los Angeles, linking <strong>LAHD property-activity records</strong> (code-enforcement cases,
+          complaints, SCEP inspections) to <strong>LA County Assessor</strong> parcel context. It compares properties
+          with and without rent registration numbers on case volume, building age, and unit count.
+        </p>
+      </div>
+
+      <div class="city-stats">
+        <div class="city-stat"><div class="cs-value">8</div><div class="cs-label">Street Queries</div></div>
+        <div class="city-stat"><div class="cs-value">150</div><div class="cs-label">Sampled Properties</div></div>
+        <div class="city-stat"><div class="cs-value">84</div><div class="cs-label">With Rent Registration</div></div>
+        <div class="city-stat"><div class="cs-value">2,367</div><div class="cs-label">Case Rows</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Street</th><th class="num">Sampled Rows</th><th class="num">Properties</th><th class="num">Rent Registered</th></tr></thead>
+          <tbody>
+            <tr><td>Main</td><td class="num">22</td><td class="num">16</td><td class="num">11</td></tr>
+            <tr><td>Broadway</td><td class="num">25</td><td class="num">19</td><td class="num">9</td></tr>
+            <tr><td>Spring</td><td class="num">25</td><td class="num">19</td><td class="num">3</td></tr>
+            <tr><td>Olympic</td><td class="num">25</td><td class="num">20</td><td class="num">14</td></tr>
+            <tr><td>Figueroa</td><td class="num">25</td><td class="num">21</td><td class="num">9</td></tr>
+            <tr><td>Vermont</td><td class="num">22</td><td class="num">14</td><td class="num">11</td></tr>
+            <tr><td>Western</td><td class="num">25</td><td class="num">22</td><td class="num">15</td></tr>
+            <tr><td>Alvarado</td><td class="num">25</td><td class="num">19</td><td class="num">12</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Group</th><th class="num">Properties</th><th class="num">Mean Cases</th><th class="num">Mean Units</th><th class="num">Mean Year Built</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Registered</td><td class="num">84</td><td class="num">12.31</td><td class="num">10.32</td><td class="num">1,931</td></tr>
+            <tr><td>Not registered</td><td class="num">66</td><td class="num">20.20</td><td class="num">65.23</td><td class="num">1,960</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Registered properties in this sample show fewer mean cases (12.3 vs. 20.2), fewer units (10.3 vs. 65.2), and older construction (1931 vs. 1960) compared to unregistered properties. The assessor layer provides citywide context: <strong>806,127</strong> parcels, of which <strong>114,856</strong> are pre-1979 multifamily proxies (RSO-eligible). Sample-level assessor matches remain sparse (2 of 150).</p>
+
+      <div class="warning-box"><p><strong>Scope:</strong> This is a deterministic bounded pilot across a fixed street sample, not a citywide estimate. The assessor layer is contextual because the sample-level match rate is sparse. Do not generalize these per-street patterns to the broader Los Angeles rental market.</p></div>
+    </section>
+
+    <!-- ═══ Oakland ═══ -->
+    <section id="oakland" class="section">
+      <div class="section-header"><h2>Oakland, CA</h2><span class="section-tag">Administrative case panel</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          Oakland&rsquo;s <strong>Rent Adjustment Program (RAP)</strong> administers tenant petitions for
+          rent adjustments, decreased-services complaints, and code-related grievances. When a tenant
+          believes their landlord has reduced services (broken appliances, pest problems, security failures)
+          or violated building codes, they file a RAP petition. Each case is assigned a hearing officer,
+          tracked through a formal workflow, and resolved by order, settlement, or dismissal.
+        </p>
+        <p>
+          This analysis extracted the complete public RAP search universe for three petition grounds
+          and linked the resulting addresses to Oakland&rsquo;s <strong>311 code-enforcement request database</strong>
+          (30,164 total requests) to add a second official enforcement signal. The result is a near-full
+          local administrative panel &mdash; not a proof of concept, but a reproducible case-level dataset.
+        </p>
+      </div>
+
+      <!-- Key stats -->
+      <div class="finding-grid">
+        <div class="finding-card">
+          <div class="fc-value neutral">3,805</div>
+          <div class="fc-label">RAP Case Rows</div>
+          <div class="fc-source">3,678 unique case numbers</div>
+        </div>
+        <div class="finding-card">
+          <div class="fc-value neutral">2,977</div>
+          <div class="fc-label">Linked Addresses</div>
+          <div class="fc-source">Normalized RAP addresses</div>
+        </div>
+        <div class="finding-card">
+          <div class="fc-value neutral">387</div>
+          <div class="fc-label">311 Matches</div>
+          <div class="fc-source">Code-enforcement requests matched</div>
+        </div>
+        <div class="finding-card">
+          <div class="fc-value neutral">206</div>
+          <div class="fc-label">Matched Addresses</div>
+          <div class="fc-source">RAP addresses with 311 activity</div>
+        </div>
+      </div>
+
+      <!-- RAP petition trends chart -->
+      <div class="chart-container">
+        <h3>RAP Petitions by Year and Ground</h3>
+        <p class="chart-subtitle">
+          Annual case counts for each petition ground. &ldquo;Decrease in services&rdquo; was the primary category
+          through 2020, peaking at 350 cases in 2016. In 2021 the RAP relabeled this ground to &ldquo;fewer housing
+          services&rdquo; &mdash; the underlying complaint type (broken appliances, pest issues, security lapses) is
+          the same. &ldquo;Code violation&rdquo; cases are a separate, smaller category tracking formal building-code breaches.
+        </p>
+        <div class="chart-canvas-wrap tall"><canvas id="oakRapChart"></canvas></div>
+      </div>
+
+      <!-- 311 linkage chart -->
+      <div class="chart-container">
+        <h3>311 Code-Enforcement Matches by Year</h3>
+        <p class="chart-subtitle">
+          Number of Oakland 311 code-enforcement requests that matched to RAP petition addresses,
+          by petition year. A spike in 2018&ndash;2019 suggests overlapping enforcement activity at
+          the same properties where tenants filed decreased-services complaints.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="oak311Chart"></canvas></div>
+      </div>
+
+      <!-- Coverage table -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Petition ground</th><th>What it covers</th><th class="num">Search rows</th><th class="num">Detail rows</th><th class="num">Unique cases</th><th class="num">311 matches</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Code violation</td><td>Formal building-code breaches reported by tenants</td><td class="num">69</td><td class="num">69</td><td class="num">65</td><td class="num">14</td></tr>
+            <tr><td class="highlight">Decrease in services</td><td>Landlord reduced or failed to maintain services (pre-2021 label)</td><td class="num">2,997</td><td class="num">2,996</td><td class="num">2,988</td><td class="num">275</td></tr>
+            <tr><td class="highlight">Fewer housing services</td><td>Same complaint type, relabeled post-2021</td><td class="num">721</td><td class="num">734</td><td class="num">672</td><td class="num">151</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="chart-note">Detail rows can slightly exceed search rows because one visible search entry can yield multiple structured detail rows in the RAP workflow system.</p>
+
+      <div class="insight-box"><p><strong>What this is:</strong> A near-full local administrative panel for tenant-service and code-related petitions, with a linked 311 enforcement signal. The public RAP workflow is machine-usable and reproducible. <strong>What it is not:</strong> A causal estimate of citywide rent control effects. The panel tracks petition volume and enforcement overlap, not treatment effects.</p></div>
+    </section>
+
+    <!-- ═══ Saint Paul ═══ -->
+    <section id="saint-paul" class="section">
+      <div class="section-header"><h2>Saint Paul, MN</h2><span class="section-tag">Modern ordinance case study</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          Saint Paul voters approved a <strong>3% annual rent stabilization cap</strong> by ballot initiative
+          in November 2021, with the ordinance taking effect in May 2022. Subsequent amendments in
+          January 2023 and June 2025 modified exemptions and enforcement. This provides the cleanest
+          modern policy case study in the project &mdash; a specific city with a known adoption date.
+        </p>
+        <p>
+          The analysis uses a simple difference-in-differences design comparing <strong>Ramsey County</strong>
+          (Saint Paul) to two neighboring counties (<strong>Hennepin County</strong> and <strong>Dakota County</strong>)
+          on three federal outcome series: building permits (BPS), covered employment (QCEW), and
+          average weekly wages (QCEW).
+        </p>
+      </div>
+
+      <div class="chart-container">
+        <h3>Saint Paul Difference-in-Differences</h3>
+        <p class="chart-subtitle">
+          Change in each outcome from pre-period to post-period, comparing Ramsey County (treated)
+          to the average of Hennepin and Dakota Counties (controls). Negative DiD means the treated
+          county&rsquo;s change was worse relative to controls.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="stpDidChart"></canvas></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Outcome</th><th>What it measures</th><th class="num">Treated pre</th><th class="num">Treated change</th><th class="num">Control change</th><th class="num">DiD</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Building permits</td><td>New housing units authorized in Ramsey County (annual)</td><td class="num">1,904</td><td class="num">&minus;459</td><td class="num">&minus;979</td><td class="num">+520</td></tr>
+            <tr><td class="highlight">Covered employment</td><td>Workers covered by unemployment insurance in Ramsey County (quarterly)</td><td class="num">318,378</td><td class="num">+7,084</td><td class="num">+13,390</td><td class="num">&minus;6,306</td></tr>
+            <tr><td>Average weekly wage</td><td>Mean weekly wage across all covered employers (quarterly)</td><td class="num">$1,323</td><td class="num">+$144</td><td class="num">+$171</td><td class="num">&minus;$27</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="insight-box"><p><strong>Interpretation:</strong> Permits declined less in Saint Paul than in neighboring counties (positive DiD of +520 units). Employment grew more slowly (&minus;6,306 DiD). Wage effects were negligible (&minus;$27/week). With only one treated county and two controls, these are descriptive differences, not powered causal estimates. FHFA HPI for the Twin Cities MSA rose from 265.0 pre-ordinance to 342.6 post-ordinance.</p></div>
+    </section>
+
+    <!-- ═══ San Jose ═══ -->
+    <section id="san-jose" class="section">
+      <div class="section-header"><h2>San Jose, CA</h2><span class="section-tag">Policy timing case study</span></div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">What this analysis does</h3>
+        <p>
+          San Jose&rsquo;s <strong>Apartment Rent Ordinance (ARO)</strong>, adopted in 2017, caps annual rent increases
+          at 5% for buildings with 3+ units built before 1979. This analysis uses the same DiD framework as
+          Saint Paul, comparing <strong>Santa Clara County</strong> (treated) to neighboring <strong>San Mateo County</strong>
+          and <strong>Contra Costa County</strong> (controls) on building permits, covered employment, and weekly wages.
+          FHFA HPI for the San Jose MSA is also tracked.
+        </p>
+      </div>
+
+      <div class="chart-container">
+        <h3>San Jose Difference-in-Differences</h3>
+        <p class="chart-subtitle">
+          Change in each outcome from pre-period to post-period, comparing Santa Clara County (treated) to the
+          average of San Mateo and Contra Costa Counties (controls).
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="sjDidChart"></canvas></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Outcome</th><th>What it measures</th><th class="num">Treated pre</th><th class="num">Treated change</th><th class="num">Control change</th><th class="num">DiD</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Building permits</td><td>New housing units authorized in Santa Clara County (annual)</td><td class="num">6,860</td><td class="num">&minus;1,253</td><td class="num">&minus;94</td><td class="num">&minus;1,159</td></tr>
+            <tr><td class="highlight">Covered employment</td><td>Workers covered by unemployment insurance (quarterly)</td><td class="num">1,071,862</td><td class="num">+29,269</td><td class="num">+5,018</td><td class="num">+24,251</td></tr>
+            <tr><td>Average weekly wage</td><td>Mean weekly wage across all covered employers (quarterly)</td><td class="num">$2,432</td><td class="num">+$924</td><td class="num">+$665</td><td class="num">+$259</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="insight-box"><p><strong>Interpretation:</strong> Permits declined substantially more in Santa Clara County than controls (&minus;1,159 DiD). Employment and wages grew faster than controls (+24,251 and +$259 DiD respectively), likely reflecting Silicon Valley&rsquo;s tech economy. FHFA HPI rose from 379.4 pre-ARO to 491.0 post-ARO. With one treated county and two controls, these are descriptive.</p></div>
+    </section>
+
+    <!-- ═══ Other Cities ═══ -->
+    <section id="other-cities" class="section">
+      <div class="section-header"><h2>Other City Extensions</h2><span class="section-tag">Data extracted &amp; linked</span></div>
+
+      <div class="card-grid card-grid-3">
+        <div class="city-card">
+          <div class="city-card-header">
+            <h3>Washington, DC</h3>
+            <span class="badge badge-green">Analyzed</span>
+          </div>
+          <p class="city-question">What does the assessment record reveal about protected stock and tenure patterns?</p>
+          <p class="city-detail">
+            <strong>What&rsquo;s been done:</strong> Analyzed <strong>130,934 residential parcels</strong> across 8 wards.
+            Identified <strong>66,367 rental-probable</strong> and <strong>64,567 owner-occupied proxy</strong> parcels.
+            Ward rental shares range from <strong>35% to 64%</strong>. Enriched with 40,887 condo records.
+            Assessment gap and neighborhood-level disparity analysis completed.<br>
+            <strong>Status:</strong> Assessment and tenure analysis complete. DHCD RentRegistry query next.
+          </p>
+        </div>
+        <div class="city-card">
+          <div class="city-card-header">
+            <h3>Berkeley</h3>
+            <span class="badge badge-yellow">Pilot</span>
+          </div>
+          <p class="city-question">Did registered legal rent ceilings diverge from city-wide market trends?</p>
+          <p class="city-detail">
+            <strong>What&rsquo;s been done:</strong> Tested the Rent Board&rsquo;s Unit Information Lookup interface.
+            Initial pilot returned structured data for 1 address. Registry maintains unit-level ceilings
+            that could be compared to ACS and FHFA market trends.<br>
+            <strong>Status:</strong> Lookup feasibility confirmed. Needs scaled extraction.
+          </p>
+        </div>
+      </div>
+
+      <div class="warning-box"><p>DC has ward-level assessment analysis. Berkeley needs scaled extraction. None of these are causal estimates.</p></div>
+    </section>
+
+    <!-- ═══ Audit Status ═══ -->
+    <section id="audit" class="section">
+      <div class="section-header"><h2>Full Audit Status</h2><span class="section-tag">12 cities</span></div>
+      <p>Every city below has a completed data-source audit documenting available public records, join keys, data quality, and feasibility assessment.</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>City</th><th>Policy type</th><th>Decision</th><th>Primary data</th><th>Key question</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">New York City</td><td>Legacy rent stabilization</td><td><span class="badge badge-green">Proceed</span></td><td>RGB RSBL + HPD violations</td><td>HPD violation trends in stabilized buildings</td></tr>
+            <tr><td class="highlight">Los Angeles</td><td>Legacy RSO</td><td><span class="badge badge-green">Proceed</span></td><td>LAHD property activity + Assessor</td><td>Bounded 8-street comparative pilot (150 properties)</td></tr>
+            <tr><td class="highlight">Oakland</td><td>Legacy rent adjustment</td><td><span class="badge badge-green">Proceed</span></td><td>RAP cases + 311 enforcement</td><td>3,805-row admin panel with 311 linkage</td></tr>
+            <tr><td class="highlight">Berkeley</td><td>Legacy rent control</td><td><span class="badge badge-green">Proceed</span></td><td>Rent Board registration</td><td>Legal ceiling vs. market divergence</td></tr>
+            <tr><td class="highlight">Washington, DC</td><td>Legacy rent control</td><td><span class="badge badge-green">Proceed</span></td><td>DHCD RentRegistry</td><td>Protected stock and turnover</td></tr>
+            <tr><td class="highlight">Saint Paul</td><td>Modern stabilization (2022)</td><td><span class="badge badge-green">Proceed</span></td><td>BPS + FHFA + QCEW</td><td>Ordinance effects on permits/prices/wages</td></tr>
+            <tr><td class="highlight">San Francisco</td><td>Legacy rent control</td><td><span class="badge badge-green">Proceed</span></td><td>Rent Board inventory (533,205 rows)</td><td>Stock composition, occupancy, rent-band reporting</td></tr>
+            <tr><td class="highlight">San Jose</td><td>Modern ARO (2017)</td><td><span class="badge badge-green">Proceed</span></td><td>BPS + FHFA + QCEW</td><td>ARO effects on permits/prices/wages</td></tr>
+            <tr><td class="highlight">West Hollywood</td><td>Legacy RSO</td><td><span class="badge badge-green">Proceed</span></td><td>RSO registry + buyouts + seismic + appeals</td><td>Protected-stock overlap with admin surfaces</td></tr>
+            <tr><td>Santa Monica</td><td>Legacy rent control</td><td><span class="badge badge-yellow">Limits</span></td><td>MAR records</td><td>Citywide MAR export feasibility</td></tr>
+            <tr><td>East Palo Alto</td><td>Legacy stabilization</td><td><span class="badge badge-yellow">Limits</span></td><td>Board agendas + MAR</td><td>Address-level outcomes</td></tr>
+            <tr><td>Mountain View</td><td>Modern CSFRA (2016)</td><td><span class="badge badge-green">Proceed</span></td><td>CSFRA property search</td><td>Coverage and petition panel</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Lightbox -->
+  <div id="lightboxOverlay" class="lightbox-overlay" onclick="rcCloseLightbox()">
+    <button class="lightbox-close" onclick="rcCloseLightbox()" aria-label="Close">&times;</button>
+    <img id="lightboxImg" src="" alt="">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
+  </div>
+
+  <footer class="site-footer"><div class="footer-inner"><span>rentctrl &middot; MIT License &middot; Shane Wray 2026</span><a href="https://github.com/smkwray/rentctrl">GitHub</a></div></footer>
+
+  <script>
+    rcChartDefaults();
+    var charts = [];
+    function buildCharts() {
+      charts.forEach(function(c){ c.destroy(); }); charts = [];
+      var C = rcColors();
+
+      /* SF Reporting Rollout */
+      charts.push(new Chart(document.getElementById('sfRolloutChart'), {
+        type:'bar',
+        data:{
+          labels:['2022','2023','2024','2025','2026'],
+          datasets:[
+            {label:'Unit Rows',data:[66744,107886,111512,132088,114975],backgroundColor:C.accent,borderRadius:4,yAxisID:'y'},
+            {label:'Census Blocks',data:[1226,3753,3809,3854,3764],backgroundColor:C.green,borderRadius:4,yAxisID:'y1'}
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y.toLocaleString();}}}},
+          scales:{
+            y:{beginAtZero:true,title:{display:true,text:'Unit Rows'},grid:{color:C.grid},position:'left'},
+            y1:{beginAtZero:true,title:{display:true,text:'Census Blocks'},grid:{display:false},position:'right'},
+            x:{grid:{display:false}}
+          }
+        }
+      }));
+
+      /* NYC Building FE event profile */
+      charts.push(new Chart(document.getElementById('nycFEChart'), {
+        type:'bar',
+        data:{
+          labels:['2019 (baseline)','2020','2021','2022','2023','2024','2025'],
+          datasets:[{
+            label:'Additional violations vs. 2019',
+            data:[0, 0.18, 0.44, 0.36, 1.01, 2.14, 4.20],
+            backgroundColor: [C.muted, C.accent, C.accent, C.accent, C.accent, C.accent, C.accent],
+            borderRadius: 4
+          }]
+        },
+        options:{
+          responsive:true,
+          plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){return '+'+ctx.parsed.y.toFixed(2)+' additional violations per building';}}} },
+          scales:{
+            y:{ beginAtZero:true, title:{display:true,text:'Additional violations per building vs. 2019'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* NYC violation levels */
+      charts.push(new Chart(document.getElementById('nycLevelChart'), {
+        type:'line',
+        data:{
+          labels:['2019','2020','2021','2022','2023','2024','2025'],
+          datasets:[
+            { label:'Stabilized (32,793 buildings)', data:[1.33,1.22,2.24,2.49,3.17,4.65,7.27], borderColor:C.accent, backgroundColor:C.accent+'33', fill:false, tension:0.3, pointRadius:5, borderWidth:2.5 },
+            { label:'Non-stabilized (56,307 buildings)', data:[0.76,0.48,1.23,1.57,1.59,1.94,2.51], borderColor:C.green, backgroundColor:C.green+'33', fill:false, tension:0.3, pointRadius:5, borderWidth:2.5 }
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{ tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label.split('(')[0].trim()+': '+ctx.parsed.y.toFixed(2)+' violations/building';}}} },
+          scales:{
+            y:{ beginAtZero:true, title:{display:true,text:'Mean HPD violations per building'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* NYC borough gap chart */
+      charts.push(new Chart(document.getElementById('nycBoroughChart'), {
+        type:'line',
+        data:{
+          labels:['2019','2020','2021','2022','2023','2024','2025'],
+          datasets:[
+            { label:'Bronx', data:[0.84,1.22,2.52,2.63,3.88,6.71,12.19], borderColor:C.red, fill:false, tension:0.3, pointRadius:4, borderWidth:2 },
+            { label:'Brooklyn', data:[0.75,0.97,1.12,0.98,1.43,1.99,3.90], borderColor:C.accent, fill:false, tension:0.3, pointRadius:4, borderWidth:2 },
+            { label:'Manhattan', data:[0.63,0.58,0.82,0.98,1.39,1.92,3.11], borderColor:C.green, fill:false, tension:0.3, pointRadius:4, borderWidth:2 },
+            { label:'Queens', data:[0.50,0.63,0.91,0.69,1.43,3.13,4.06], borderColor:C.orange, fill:false, tension:0.3, pointRadius:4, borderWidth:2 },
+            { label:'Staten Island', data:[0.65,0.71,0.47,1.24,1.42,3.01,8.03], borderColor:C.purple, fill:false, tension:0.3, pointRadius:4, borderWidth:2 }
+          ]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y.toFixed(2)+' violation gap';}}} },
+          scales:{
+            y:{ beginAtZero:true, title:{display:true,text:'Violation gap (stabilized minus non-stabilized)'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* Oakland RAP petitions by year */
+      (function(){
+        var disYears = [2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021];
+        var disCases = [57,183,110,202,123,109,138,219,241,85,134,350,296,317,263,157,7];
+        var fhsYears = [2021,2022,2023,2024,2025];
+        var fhsCases = [141,123,122,140,126];
+        var cvYears = [2021,2022,2023,2024,2025];
+        var cvCases = [12,11,8,20,12];
+        /* Merge into one timeline 2005-2025 */
+        var allYears = []; for(var y=2005;y<=2025;y++) allYears.push(y);
+        var disData = allYears.map(function(y){ var i=disYears.indexOf(y); return i>=0?disCases[i]:null; });
+        var fhsData = allYears.map(function(y){ var i=fhsYears.indexOf(y); return i>=0?fhsCases[i]:null; });
+        var cvData = allYears.map(function(y){ var i=cvYears.indexOf(y); return i>=0?cvCases[i]:null; });
+
+        charts.push(new Chart(document.getElementById('oakRapChart'), {
+          type:'bar',
+          data:{
+            labels:allYears,
+            datasets:[
+              { label:'Decrease in services', data:disData, backgroundColor:C.accent, borderRadius:3, stack:'a' },
+              { label:'Fewer housing services', data:fhsData, backgroundColor:C.green, borderRadius:3, stack:'a' },
+              { label:'Code violation', data:cvData, backgroundColor:C.orange, borderRadius:3, stack:'a' }
+            ]
+          },
+          options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{ tooltip:{callbacks:{label:function(ctx){ return ctx.dataset.label+': '+ctx.parsed.y+' cases'; }}} },
+            scales:{
+              y:{ beginAtZero:true, stacked:true, title:{display:true,text:'RAP cases filed'}, grid:{color:C.grid} },
+              x:{ stacked:true, grid:{display:false}, ticks:{maxRotation:45,minRotation:45} }
+            }
+          }
+        }));
+      })();
+
+      /* Oakland 311 matches by year */
+      (function(){
+        var years311 = [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+        var disMatch = [9,2,3,14,7,7,19,7,13,18,16,12,242,139,47,1,0,0,0,0];
+        var fhsMatch = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,41,33,50,47,78];
+        var cvMatch =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,2,1,6,4];
+        var total = years311.map(function(_,i){ return disMatch[i]+fhsMatch[i]+cvMatch[i]; });
+
+        charts.push(new Chart(document.getElementById('oak311Chart'), {
+          type:'bar',
+          data:{
+            labels:years311,
+            datasets:[{ label:'311 code-enforcement matches', data:total, backgroundColor:C.red, borderRadius:3 }]
+          },
+          options:{
+            responsive:true,
+            plugins:{ legend:{display:false}, tooltip:{callbacks:{label:function(ctx){ return ctx.parsed.y+' matched 311 requests'; }}} },
+            scales:{
+              y:{ beginAtZero:true, title:{display:true,text:'Matched 311 requests'}, grid:{color:C.grid} },
+              x:{ grid:{display:false}, ticks:{maxRotation:45,minRotation:45} }
+            }
+          }
+        }));
+      })();
+
+      /* San Jose DiD */
+      charts.push(new Chart(document.getElementById('sjDidChart'), {
+        type:'bar',
+        data:{
+          labels:['Building permits\n(annual units)','Covered employment\n(quarterly level)','Average weekly wage\n(quarterly $)'],
+          datasets:[
+            { label:'Treated change (Santa Clara Co.)', data:[-1253, 29269, 924], backgroundColor:C.accent, borderRadius:4 },
+            { label:'Control change (San Mateo + Contra Costa avg)', data:[-94, 5018, 665], backgroundColor:C.muted, borderRadius:4 }
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{ tooltip:{callbacks:{label:function(ctx){
+            var v = ctx.parsed.y;
+            var prefix = ctx.datasetIndex === 0 ? 'Treated: ' : 'Control: ';
+            return prefix + (v >= 0 ? '+' : '') + v.toLocaleString();
+          }}} },
+          scales:{
+            y:{ title:{display:true,text:'Change from pre-period to post-period'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* Saint Paul DiD */
+      charts.push(new Chart(document.getElementById('stpDidChart'), {
+        type:'bar',
+        data:{
+          labels:['Building permits\n(annual units)','Covered employment\n(quarterly level)','Average weekly wage\n(quarterly $)'],
+          datasets:[
+            { label:'Treated change (Ramsey Co.)', data:[-459, 7084, 144], backgroundColor:C.accent, borderRadius:4 },
+            { label:'Control change (Hennepin + Dakota avg)', data:[-979, 13390, 171], backgroundColor:C.muted, borderRadius:4 }
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{ tooltip:{callbacks:{label:function(ctx){
+            var v = ctx.parsed.y;
+            var prefix = ctx.datasetIndex === 0 ? 'Treated: ' : 'Control: ';
+            return prefix + (v >= 0 ? '+' : '') + v.toLocaleString();
+          }}} },
+          scales:{
+            y:{ title:{display:true,text:'Change from pre-period to post-period'}, grid:{color:C.grid} },
+            x:{ grid:{display:false} }
+          }
+        }
+      }));
+    }
+
+    buildCharts();
+    window.rcRebuildCharts = function(){ rcChartDefaults(); buildCharts(); };
+    if (typeof rcInitScrollSpy === 'function') rcInitScrollSpy();
+  </script>
+</body>
+</html>

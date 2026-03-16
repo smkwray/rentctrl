@@ -1,0 +1,115 @@
+outcome,check_name,spec_group,treated_states,donor_pool,sample_rows,sample_start_year,sample_end_year,status,notes
+permits_units_5plus,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+permits_units_5plus,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+permits_units_5plus,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",105,2010,2024,ok,Restricts the donor pool to western donor states only.
+permits_units_5plus,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding AZ.
+permits_units_5plus,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding CO.
+permits_units_5plus,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding FL.
+permits_units_5plus,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+permits_units_5plus,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+permits_units_5plus,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+permits_units_total,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+permits_units_total,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+permits_units_total,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",105,2010,2024,ok,Restricts the donor pool to western donor states only.
+permits_units_total,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding AZ.
+permits_units_total,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding CO.
+permits_units_total,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding FL.
+permits_units_total,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+permits_units_total,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+permits_units_total,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+permits_units_multifamily_share,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+permits_units_multifamily_share,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+permits_units_multifamily_share,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",105,2010,2024,ok,Restricts the donor pool to western donor states only.
+permits_units_multifamily_share,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding AZ.
+permits_units_multifamily_share,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding CO.
+permits_units_multifamily_share,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Baseline donor pool excluding FL.
+permits_units_multifamily_share,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+permits_units_multifamily_share,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",180,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+permits_units_multifamily_share,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",195,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+index_sa_mean,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",208,2010,2025,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+index_sa_mean,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",208,2010,2025,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+index_sa_mean,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",112,2010,2025,ok,Restricts the donor pool to western donor states only.
+index_sa_mean,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",192,2010,2025,ok,Baseline donor pool excluding AZ.
+index_sa_mean,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",192,2010,2025,ok,Baseline donor pool excluding CO.
+index_sa_mean,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",192,2010,2025,ok,Baseline donor pool excluding FL.
+index_sa_mean,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",192,2010,2025,ok,Single-treated-state run for CA with the full donor pool.
+index_sa_mean,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",192,2010,2025,ok,Single-treated-state run for OR with the full donor pool.
+index_sa_mean,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",208,2010,2025,ok,Pooled model with separate event-time interactions for CA and OR.
+qcew_total_covered_emplvl,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",143,2014,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+qcew_total_covered_emplvl,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",143,2014,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+qcew_total_covered_emplvl,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",77,2014,2024,ok,Restricts the donor pool to western donor states only.
+qcew_total_covered_emplvl,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Baseline donor pool excluding AZ.
+qcew_total_covered_emplvl,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Baseline donor pool excluding CO.
+qcew_total_covered_emplvl,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Baseline donor pool excluding FL.
+qcew_total_covered_emplvl,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Single-treated-state run for CA with the full donor pool.
+qcew_total_covered_emplvl,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Single-treated-state run for OR with the full donor pool.
+qcew_total_covered_emplvl,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",143,2014,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+qcew_total_covered_avg_weekly_wage,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",143,2014,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+qcew_total_covered_avg_weekly_wage,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",143,2014,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+qcew_total_covered_avg_weekly_wage,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",77,2014,2024,ok,Restricts the donor pool to western donor states only.
+qcew_total_covered_avg_weekly_wage,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Baseline donor pool excluding AZ.
+qcew_total_covered_avg_weekly_wage,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Baseline donor pool excluding CO.
+qcew_total_covered_avg_weekly_wage,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Baseline donor pool excluding FL.
+qcew_total_covered_avg_weekly_wage,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Single-treated-state run for CA with the full donor pool.
+qcew_total_covered_avg_weekly_wage,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",132,2014,2024,ok,Single-treated-state run for OR with the full donor pool.
+qcew_total_covered_avg_weekly_wage,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",143,2014,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+same_house_1y_pct,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+same_house_1y_pct,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+same_house_1y_pct,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",98,2010,2024,ok,Restricts the donor pool to western donor states only.
+same_house_1y_pct,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding AZ.
+same_house_1y_pct,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding CO.
+same_house_1y_pct,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding FL.
+same_house_1y_pct,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+same_house_1y_pct,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+same_house_1y_pct,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+moved_last_year_pct,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+moved_last_year_pct,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+moved_last_year_pct,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",98,2010,2024,ok,Restricts the donor pool to western donor states only.
+moved_last_year_pct,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding AZ.
+moved_last_year_pct,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding CO.
+moved_last_year_pct,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding FL.
+moved_last_year_pct,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+moved_last_year_pct,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+moved_last_year_pct,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+moved_different_state_pct,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+moved_different_state_pct,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+moved_different_state_pct,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",98,2010,2024,ok,Restricts the donor pool to western donor states only.
+moved_different_state_pct,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding AZ.
+moved_different_state_pct,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding CO.
+moved_different_state_pct,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding FL.
+moved_different_state_pct,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+moved_different_state_pct,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+moved_different_state_pct,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+renter_share_pct,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+renter_share_pct,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+renter_share_pct,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",98,2010,2024,ok,Restricts the donor pool to western donor states only.
+renter_share_pct,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding AZ.
+renter_share_pct,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding CO.
+renter_share_pct,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding FL.
+renter_share_pct,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+renter_share_pct,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+renter_share_pct,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+DP04_0134E,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+DP04_0134E,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+DP04_0134E,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",98,2010,2024,ok,Restricts the donor pool to western donor states only.
+DP04_0134E,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding AZ.
+DP04_0134E,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding CO.
+DP04_0134E,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding FL.
+DP04_0134E,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+DP04_0134E,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+DP04_0134E,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+rent_burden_30_plus_pct,baseline,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Baseline pooled TWFE event study with donor states retained and pre-trend coefficients exported.
+rent_burden_30_plus_pct,placebo_2y_early,pooled,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Placebo treatment years shifted two years earlier than the preferred annual treatment year.
+rent_burden_30_plus_pct,donor_pool_west_only,donor_sensitivity,"CA,OR","AZ,CO,ID,NV,UT",98,2010,2024,ok,Restricts the donor pool to western donor states only.
+rent_burden_30_plus_pct,leave_one_donor_out_AZ,donor_sensitivity,"CA,OR","CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding AZ.
+rent_burden_30_plus_pct,leave_one_donor_out_CO,donor_sensitivity,"CA,OR","AZ,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding CO.
+rent_burden_30_plus_pct,leave_one_donor_out_FL,donor_sensitivity,"CA,OR","AZ,CO,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Baseline donor pool excluding FL.
+rent_burden_30_plus_pct,ca_only,single_treated,CA,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for CA with the full donor pool.
+rent_burden_30_plus_pct,or_only,single_treated,OR,"AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",168,2010,2024,ok,Single-treated-state run for OR with the full donor pool.
+rent_burden_30_plus_pct,state_specific_interactions,interaction,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",182,2010,2024,ok,Pooled model with separate event-time interactions for CA and OR.
+index_sa,quarterly_preferred_treatment,quarterly_treatment_timing,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",832,2010,2025,ok,Quarterly TWFE event study using `event_time_quarters_preferred`.
+index_sa,quarterly_alternative_treatment,quarterly_treatment_timing,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",832,2010,2025,ok,Quarterly TWFE event study using `event_time_quarters_alternative`.
+qcew_total_covered_emplvl,quarterly_preferred_treatment,quarterly_treatment_timing,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",572,2014,2024,ok,Quarterly TWFE event study using `event_time_quarters_preferred`.
+qcew_total_covered_emplvl,quarterly_alternative_treatment,quarterly_treatment_timing,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",572,2014,2024,ok,Quarterly TWFE event study using `event_time_quarters_alternative`.
+qcew_total_covered_avg_weekly_wage,quarterly_preferred_treatment,quarterly_treatment_timing,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",572,2014,2024,ok,Quarterly TWFE event study using `event_time_quarters_preferred`.
+qcew_total_covered_avg_weekly_wage,quarterly_alternative_treatment,quarterly_treatment_timing,"CA,OR","AZ,CO,FL,GA,ID,NC,NV,TN,TX,UT,VA",572,2014,2024,ok,Quarterly TWFE event study using `event_time_quarters_alternative`.

@@ -1,0 +1,13 @@
+city,status,audit_artifact,primary_join_key,decision,next_backend_task
+New York City,audited,docs/14_nyc_city_audit.md,borough+block+lot,proceed,Download one borough RGB PDF and validate borough-block-lot join rates against HPD violations.
+Los Angeles,audited,docs/15_los_angeles_city_audit.md,address+APN_if_available,proceed,Pull bounded RSO and SCEP samples and validate APN or address match rates.
+Oakland,audited,docs/16_oakland_city_audit.md,address+case_number+APN_if_available,proceed,Audit RAP search fields and verify whether case data are exportable beyond interactive lookup.
+Berkeley,audited,docs/17_berkeley_city_audit.md,address+unit_identifier,proceed,Audit Unit Information Lookup mechanics and field consistency on a bounded sample.
+Washington, DC,audited,docs/18_dc_city_audit.md,address+registration_or_accommodation_id_if_exposed,proceed,Audit public RentRegistry query and export fields on rentregistry.dc.gov.
+Saint Paul,audited,docs/19_saint_paul_city_audit.md,policy_timing_case_study,proceed,Assemble ordinance/amendment dates and pull Ramsey County plus Twin Cities backbone series.
+San Francisco,audited,docs/20_san_francisco_city_audit.md,address+APN+license_year,proceed_with_limits,Audit the public Rent Board Portal fields and determine whether year-by-year inventory or license records can be systematically collected.
+San Jose,audited,docs/21_san_jose_city_audit.md,zip_code+period,proceed_with_limits,Audit whether the public registry and petition maps expose downloadable underlying layers or CSVs.
+West Hollywood,audited,docs/22_west_hollywood_city_audit.md,address+unit+parcel,proceed,Parse the Rent Stabilized Addresses PDF and audit whether hearings or THP outcomes can be systematically linked by address or parcel.
+Santa Monica,audited,docs/23_santa_monica_city_audit.md,address+unit,proceed_with_limits,Determine whether a citywide MAR export or written-list request can provide structured fields beyond address and rent ceiling.
+East Palo Alto,audited,docs/24_east_palo_alto_city_audit.md,address+unit+certificate_or_petition_record,proceed_with_limits,Audit board agendas and MAR-related materials for address-level outcomes and decide whether bounded administrative extraction is feasible.
+Mountain View,audited,docs/25_mountain_view_city_audit.md,address,proceed,Audit the public property-coverage search and published reports to determine whether a bounded address-level coverage and petition panel can be assembled.
