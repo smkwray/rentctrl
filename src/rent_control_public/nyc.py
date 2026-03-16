@@ -245,6 +245,39 @@ def _get_csv(
     raise last_error
 
 
+def _get_csv_paged(
+    url: str,
+    *,
+    params: dict[str, str],
+    timeout: int,
+    page_size: int = 50000,
+    max_pages: int | None = None,
+) -> pd.DataFrame:
+    if page_size <= 0:
+        raise ValueError("page_size must be positive")
+    base_params = {key: value for key, value in params.items() if key not in {"$limit", "$offset"}}
+    frames: list[pd.DataFrame] = []
+    page = 0
+    while True:
+        if max_pages is not None and page >= max_pages:
+            break
+        page_params = {
+            **base_params,
+            "$limit": str(page_size),
+            "$offset": str(page * page_size),
+        }
+        part = _get_csv(url, params=page_params, timeout=timeout)
+        if part.empty:
+            break
+        frames.append(part)
+        if len(part) < page_size:
+            break
+        page += 1
+    if not frames:
+        return pd.DataFrame()
+    return pd.concat(frames, ignore_index=True)
+
+
 def download_file(url: str, destination: Path, timeout: int = 120) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     response = requests.get(url, timeout=timeout)
@@ -367,6 +400,85 @@ def fetch_hpd_violation_building_year_summary(
         "$limit": str(limit),
     }
     out = _get_csv(HPD_VIOLATIONS_URL, params=params, timeout=timeout)
+    if "inspection_year" in out.columns:
+        out["inspection_year"] = pd.to_numeric(out["inspection_year"], errors="coerce").astype("Int64")
+    return out
+
+
+def fetch_hpd_violation_building_month_summary(
+    *,
+    borough: str | int,
+    limit: int = 50000,
+    since_year: int | None = None,
+    exact_year: int | None = None,
+    timeout: int = 240,
+    max_pages: int | None = None,
+) -> pd.DataFrame:
+    borough_name = normalize_borough_name(borough)
+    where = [f"boro='{borough_name}'", "inspectiondate IS NOT NULL"]
+    if exact_year is not None:
+        where.append(f"inspectiondate >= '{exact_year}-01-01T00:00:00'")
+        where.append(f"inspectiondate < '{exact_year + 1}-01-01T00:00:00'")
+    elif since_year is not None:
+        where.append(f"inspectiondate >= '{since_year}-01-01T00:00:00'")
+    params = {
+        "$select": (
+            "boroid,boro,block,lot,"
+            "date_extract_y(inspectiondate) as inspection_year,"
+            "date_extract_m(inspectiondate) as inspection_month,"
+            "count(*) as violation_count"
+        ),
+        "$where": " AND ".join(where),
+        "$group": "boroid,boro,block,lot,inspection_year,inspection_month",
+        "$order": "boroid,block,lot,inspection_year,inspection_month",
+    }
+    out = _get_csv_paged(
+        HPD_VIOLATIONS_URL,
+        params=params,
+        timeout=timeout,
+        page_size=limit,
+        max_pages=max_pages,
+    )
+    if "inspection_year" in out.columns:
+        out["inspection_year"] = pd.to_numeric(out["inspection_year"], errors="coerce").astype("Int64")
+    if "inspection_month" in out.columns:
+        out["inspection_month"] = pd.to_numeric(out["inspection_month"], errors="coerce").astype("Int64")
+    return out
+
+
+def fetch_hpd_violation_status_summary(
+    *,
+    borough: str | int,
+    limit: int = 50000,
+    since_year: int | None = None,
+    exact_year: int | None = None,
+    timeout: int = 240,
+    max_pages: int | None = None,
+) -> pd.DataFrame:
+    borough_name = normalize_borough_name(borough)
+    where = [f"boro='{borough_name}'", "inspectiondate IS NOT NULL", "currentstatus IS NOT NULL"]
+    if exact_year is not None:
+        where.append(f"inspectiondate >= '{exact_year}-01-01T00:00:00'")
+        where.append(f"inspectiondate < '{exact_year + 1}-01-01T00:00:00'")
+    elif since_year is not None:
+        where.append(f"inspectiondate >= '{since_year}-01-01T00:00:00'")
+    params = {
+        "$select": (
+            "boroid,boro,block,lot,"
+            "date_extract_y(inspectiondate) as inspection_year,"
+            "currentstatus,count(*) as violation_count"
+        ),
+        "$where": " AND ".join(where),
+        "$group": "boroid,boro,block,lot,inspection_year,currentstatus",
+        "$order": "boroid,block,lot,inspection_year,currentstatus",
+    }
+    out = _get_csv_paged(
+        HPD_VIOLATIONS_URL,
+        params=params,
+        timeout=timeout,
+        page_size=limit,
+        max_pages=max_pages,
+    )
     if "inspection_year" in out.columns:
         out["inspection_year"] = pd.to_numeric(out["inspection_year"], errors="coerce").astype("Int64")
     return out
@@ -688,6 +800,211 @@ def build_stratified_registered_rental_panel(panel: pd.DataFrame) -> pd.DataFram
     return eligible
 
 
+def add_registration_lifecycle_bins(panel: pd.DataFrame) -> pd.DataFrame:
+    out = panel.copy()
+    registration_count = pd.to_numeric(out.get("registration_count"), errors="coerce")
+    last_registration_year = pd.to_datetime(out.get("lastregistrationdate"), errors="coerce").dt.year
+    registration_end_year = pd.to_datetime(out.get("registrationenddate"), errors="coerce").dt.year
+
+    out["registration_count_bin"] = pd.Series(
+        pd.cut(
+            registration_count.fillna(0),
+            bins=[-1, 0, 1, 2, float("inf")],
+            labels=["missing", "1", "2", "3_plus"],
+            include_lowest=True,
+        ),
+        index=out.index,
+        dtype="object",
+    )
+    out["registration_recency_bin"] = pd.Series(
+        pd.cut(
+            last_registration_year.fillna(0),
+            bins=[-1, 2021, 2023, 2024, float("inf")],
+            labels=["pre_2022", "2022_2023", "2024", "2025_plus"],
+            include_lowest=True,
+        ),
+        index=out.index,
+        dtype="object",
+    )
+    out.loc[last_registration_year.isna(), "registration_recency_bin"] = "missing"
+    out["registration_recency_bin"] = out["registration_recency_bin"].fillna("missing")
+    out["registration_end_bin"] = pd.Series(
+        pd.cut(
+            registration_end_year.fillna(0),
+            bins=[-1, 2024, 2025, float("inf")],
+            labels=["through_2024_or_missing", "2025", "2026_plus"],
+            include_lowest=True,
+        ),
+        index=out.index,
+        dtype="object",
+    )
+    out.loc[registration_end_year.isna(), "registration_end_bin"] = "missing"
+    out["registration_end_bin"] = out["registration_end_bin"].fillna("missing")
+    return out
+
+
+def classify_hpd_current_status(value: str | float | int | None) -> str:
+    text = str(value or "").strip().upper()
+    if not text:
+        return "missing"
+    if any(
+        marker in text
+        for marker in (
+            "REINSPECT",
+            "NO ACCESS",
+            "NOT COMPLIED",
+            "NOTICE OF ISSUANCE",
+            "NOV SENT",
+            "INFO NOV SENT",
+            "CIV14",
+            "DEFECT LETTER",
+            "OPEN",
+            "ACTIVE",
+        )
+    ):
+        return "open_reinspection"
+    if any(
+        marker in text
+        for marker in (
+            "PENDING",
+            "DEFAULT",
+            "FALSE CERTIFICATION",
+            "INVALID CERTIFICATION",
+            "POSTPONMENT",
+            "CHALLENGED",
+        )
+    ):
+        return "pending_administrative"
+    if any(marker in text for marker in ("CLOSE", "DISMISS", "CORRECT", "CERTIFIED", "COMPLY")):
+        return "resolved_or_certified"
+    return "other"
+
+
+def build_treated_selection_stage_frame(
+    rsbl: pd.DataFrame,
+    analytic_panel: pd.DataFrame,
+    enriched_panel: pd.DataFrame,
+    *,
+    refined_matches: pd.DataFrame | None = None,
+    block_matches: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    base = rsbl.copy()
+    base["boro_block_lot"] = base["boro_block_lot"].astype(str)
+    base = base.drop_duplicates(subset=["boro_block_lot"]).copy()
+
+    enriched_static_cols = [
+        "boro_block_lot",
+        "communityboard",
+        "yearbuilt",
+        "unitstotal",
+        "yearbuilt_bin",
+        "units_bin",
+        "bldgclass",
+        "landuse",
+        "mdr_registered",
+    ]
+    existing_cols = [col for col in enriched_static_cols if col in enriched_panel.columns]
+    enriched_static = enriched_panel[existing_cols].drop_duplicates(subset=["boro_block_lot"]).copy()
+    out = merge_control_frame(base, enriched_static)
+
+    observed_keys = set(
+        analytic_panel.loc[analytic_panel["treated_rsbl"] == 1, "boro_block_lot"].astype(str)
+    )
+    refined_keys = set()
+    if refined_matches is not None and "treated_boro_block_lot" in refined_matches.columns:
+        refined_keys = set(refined_matches["treated_boro_block_lot"].astype(str))
+    block_keys = set()
+    if block_matches is not None and "treated_boro_block_lot" in block_matches.columns:
+        block_keys = set(block_matches["treated_boro_block_lot"].astype(str))
+
+    unitstotal = pd.to_numeric(out.get("unitstotal"), errors="coerce")
+    out["communityboard"] = pd.to_numeric(out.get("communityboard"), errors="coerce").astype("Int64")
+    out["hpd_observed"] = out["boro_block_lot"].isin(observed_keys).astype(int)
+    out["mdr_registered"] = pd.to_numeric(out.get("mdr_registered"), errors="coerce").fillna(0).astype(int)
+    out["pluto_enriched"] = (pd.to_numeric(out.get("yearbuilt"), errors="coerce").notna() | unitstotal.notna()).astype(int)
+    out["stratified_eligible"] = (
+        (out["hpd_observed"] == 1)
+        & out["communityboard"].notna()
+        & out.get("yearbuilt_bin").notna()
+        & out.get("units_bin").notna()
+        & (unitstotal >= 3)
+    ).astype(int)
+    out["refined_cb_matched"] = out["boro_block_lot"].isin(refined_keys).astype(int)
+    out["within_block_matched"] = out["boro_block_lot"].isin(block_keys).astype(int)
+    return out
+
+
+def summarize_treated_selection_coverage(
+    frame: pd.DataFrame,
+    *,
+    group_col: str | None = None,
+    dimension: str | None = None,
+) -> pd.DataFrame:
+    work = frame.copy()
+    stage_cols = [
+        "hpd_observed",
+        "mdr_registered",
+        "pluto_enriched",
+        "stratified_eligible",
+        "refined_cb_matched",
+        "within_block_matched",
+    ]
+    for col in stage_cols:
+        work[col] = pd.to_numeric(work.get(col), errors="coerce").fillna(0).astype(int)
+
+    if group_col is None:
+        grouped = pd.DataFrame(
+            [
+                {
+                    "dimension": dimension or "overall",
+                    "category": "NYC",
+                    "rsbl_buildings": int(work["boro_block_lot"].nunique()),
+                    "hpd_observed_buildings": int(work["hpd_observed"].sum()),
+                    "mdr_registered_buildings": int(work["mdr_registered"].sum()),
+                    "pluto_enriched_buildings": int(work["pluto_enriched"].sum()),
+                    "stratified_eligible_buildings": int(work["stratified_eligible"].sum()),
+                    "refined_cb_matched_buildings": int(work["refined_cb_matched"].sum()),
+                    "within_block_matched_buildings": int(work["within_block_matched"].sum()),
+                }
+            ]
+        )
+    else:
+        series = work[group_col]
+        if pd.api.types.is_numeric_dtype(series):
+            category = pd.to_numeric(series, errors="coerce").astype("Int64").astype(str)
+            category = category.where(category != "<NA>", "missing")
+        else:
+            category = series.astype("string").fillna("missing")
+        work = work.assign(_category=category)
+        grouped = (
+            work.groupby("_category", as_index=False, dropna=False)
+            .agg(
+                rsbl_buildings=("boro_block_lot", "nunique"),
+                hpd_observed_buildings=("hpd_observed", "sum"),
+                mdr_registered_buildings=("mdr_registered", "sum"),
+                pluto_enriched_buildings=("pluto_enriched", "sum"),
+                stratified_eligible_buildings=("stratified_eligible", "sum"),
+                refined_cb_matched_buildings=("refined_cb_matched", "sum"),
+                within_block_matched_buildings=("within_block_matched", "sum"),
+            )
+            .rename(columns={"_category": "category"})
+        )
+        grouped.insert(0, "dimension", dimension or group_col)
+
+    count_cols = [
+        "hpd_observed_buildings",
+        "mdr_registered_buildings",
+        "pluto_enriched_buildings",
+        "stratified_eligible_buildings",
+        "refined_cb_matched_buildings",
+        "within_block_matched_buildings",
+    ]
+    for col in count_cols:
+        share_col = col.replace("_buildings", "_share")
+        grouped[share_col] = grouped[col] / grouped["rsbl_buildings"].replace(0, pd.NA)
+    return grouped.sort_values(["rsbl_buildings", "category"], ascending=[False, True]).reset_index(drop=True)
+
+
 def aggregate_panel_stratum_year(
     panel: pd.DataFrame,
     *,
@@ -704,6 +1021,53 @@ def aggregate_panel_stratum_year(
     grouped.sort_values(["stratum", "inspection_year", "treated_rsbl"], inplace=True)
     grouped.reset_index(drop=True, inplace=True)
     return grouped
+
+
+def aggregate_panel_group_year(
+    panel: pd.DataFrame,
+    *,
+    group_cols: tuple[str, ...] | str,
+    value_col: str = "violation_count",
+) -> pd.DataFrame:
+    group_cols_tuple = (group_cols,) if isinstance(group_cols, str) else tuple(group_cols)
+    grouped = (
+        panel.groupby([*group_cols_tuple, "inspection_year", "treated_rsbl"], as_index=False, dropna=False)
+        .agg(
+            building_count=(value_col, "size"),
+            mean_violation_count=(value_col, "mean"),
+            total_violation_count=(value_col, "sum"),
+        )
+    )
+    grouped.sort_values([*group_cols_tuple, "inspection_year", "treated_rsbl"], inplace=True)
+    grouped.reset_index(drop=True, inplace=True)
+    return grouped
+
+
+def build_group_year_gap_summary(
+    summary: pd.DataFrame,
+    *,
+    group_cols: tuple[str, ...] | str,
+) -> pd.DataFrame:
+    group_cols_tuple = (group_cols,) if isinstance(group_cols, str) else tuple(group_cols)
+    key_cols = [*group_cols_tuple, "inspection_year"]
+    treated = summary[summary["treated_rsbl"] == 1][key_cols + ["mean_violation_count", "building_count", "total_violation_count"]].rename(
+        columns={
+            "mean_violation_count": "mean_treated",
+            "building_count": "n_treated",
+            "total_violation_count": "total_treated",
+        }
+    )
+    control = summary[summary["treated_rsbl"] == 0][key_cols + ["mean_violation_count", "building_count", "total_violation_count"]].rename(
+        columns={
+            "mean_violation_count": "mean_control",
+            "building_count": "n_control",
+            "total_violation_count": "total_control",
+        }
+    )
+    out = treated.merge(control, on=key_cols, how="outer")
+    out["diff"] = out["mean_treated"] - out["mean_control"]
+    out["ratio"] = out["mean_treated"] / out["mean_control"].replace(0, pd.NA)
+    return out.sort_values(key_cols).reset_index(drop=True)
 
 
 def summarize_treated_control_balance(panel: pd.DataFrame) -> pd.DataFrame:
@@ -915,6 +1279,81 @@ def build_treated_year_event_design(
     for year in event_years:
         design[f"treated_x_{year}"] = ((out[treated_col] == 1) & (out[year_col] == year)).astype(float)
     return design, event_years
+
+
+def aggregate_margin_group(
+    panel: pd.DataFrame,
+    *,
+    group_cols: tuple[str, ...] | str = ("inspection_year",),
+    value_col: str = "violation_count",
+) -> pd.DataFrame:
+    group_cols_tuple = (group_cols,) if isinstance(group_cols, str) else tuple(group_cols)
+    work = panel.copy()
+    numeric_value = pd.to_numeric(work[value_col], errors="coerce").fillna(0.0)
+    work["any_violation"] = (numeric_value > 0).astype(int)
+    work["positive_violation_count"] = numeric_value.where(numeric_value > 0)
+    grouped = (
+        work.groupby([*group_cols_tuple, "treated_rsbl"], as_index=False, dropna=False)
+        .agg(
+            building_count=(value_col, "size"),
+            any_violation_buildings=("any_violation", "sum"),
+            any_violation_rate=("any_violation", "mean"),
+            mean_violation_count=(value_col, "mean"),
+            positive_building_count=("any_violation", "sum"),
+            mean_positive_violation_count=("positive_violation_count", "mean"),
+        )
+    )
+    grouped.sort_values([*group_cols_tuple, "treated_rsbl"], inplace=True)
+    grouped.reset_index(drop=True, inplace=True)
+    return grouped
+
+
+def build_margin_gap_summary(
+    summary: pd.DataFrame,
+    *,
+    group_cols: tuple[str, ...] | str = ("inspection_year",),
+) -> pd.DataFrame:
+    group_cols_tuple = (group_cols,) if isinstance(group_cols, str) else tuple(group_cols)
+    key_cols = list(group_cols_tuple)
+    metric_cols = [
+        "building_count",
+        "any_violation_buildings",
+        "any_violation_rate",
+        "mean_violation_count",
+        "positive_building_count",
+        "mean_positive_violation_count",
+    ]
+    treated = summary[summary["treated_rsbl"] == 1][key_cols + metric_cols].rename(
+        columns={col: f"{col}_treated" for col in metric_cols}
+    )
+    control = summary[summary["treated_rsbl"] == 0][key_cols + metric_cols].rename(
+        columns={col: f"{col}_control" for col in metric_cols}
+    )
+    out = treated.merge(control, on=key_cols, how="outer")
+    out["any_violation_rate_diff"] = out["any_violation_rate_treated"] - out["any_violation_rate_control"]
+    out["mean_violation_count_diff"] = out["mean_violation_count_treated"] - out["mean_violation_count_control"]
+    out["mean_positive_violation_count_diff"] = (
+        out["mean_positive_violation_count_treated"] - out["mean_positive_violation_count_control"]
+    )
+    return out.sort_values(key_cols).reset_index(drop=True)
+
+
+def build_complete_month_index(
+    *,
+    start_year: int,
+    end_year: int,
+) -> pd.DataFrame:
+    rows: list[dict[str, int | str]] = []
+    for year in range(start_year, end_year + 1):
+        for month in range(1, 13):
+            rows.append(
+                {
+                    "inspection_year": year,
+                    "inspection_month": month,
+                    "year_month": f"{year:04d}-{month:02d}",
+                }
+            )
+    return pd.DataFrame(rows)
 
 
 def two_way_demean(

@@ -85,6 +85,7 @@ uv.lock
 !scripts/run_nyc_borough_year_comparison.py
 !scripts/run_nyc_enriched_stratified_comparison.py
 !scripts/run_nyc_enriched_building_panel_model.py
+!scripts/run_nyc_additional_question_shortlist.py
 !scripts/run_nyc_within_communityboard_matching.py
 !scripts/run_nyc_within_communityboard_refined_matching.py
 !scripts/run_nyc_within_block_matching.py
@@ -102,6 +103,7 @@ uv.lock
 
 !results/
 !results/README.md
+!results/nyc_additional_question_shortlist.md
 !results/sf_inventory_reporting_note.md
 !results/weho_public_reporting_note.md
 !results/los_angeles_public_reporting_note.md
@@ -153,6 +155,28 @@ uv.lock
 !results/tables/nyc_within_block_year_gap_summary_since_2019.csv
 !results/tables/nyc_within_block_gap_model_coefficients_since_2019.csv
 !results/tables/nyc_within_block_gap_model_summary_since_2019.txt
+!results/tables/nyc_treated_selection_coverage_overall_since_2019.csv
+!results/tables/nyc_treated_selection_coverage_by_borough_since_2019.csv
+!results/tables/nyc_treated_selection_coverage_by_communityboard_since_2019.csv
+!results/tables/nyc_treated_selection_coverage_by_yearbuilt_bin_since_2019.csv
+!results/tables/nyc_treated_selection_coverage_by_units_bin_since_2019.csv
+!results/tables/nyc_geography_gap_by_borough_year_since_2019.csv
+!results/tables/nyc_geography_gap_by_communityboard_year_since_2019.csv
+!results/tables/nyc_building_type_gap_by_yearbuilt_bin_year_since_2019.csv
+!results/tables/nyc_building_type_gap_by_units_bin_year_since_2019.csv
+!results/tables/nyc_building_type_gap_by_bldgclass_year_since_2019.csv
+!results/tables/nyc_margin_summary_since_2019.csv
+!results/tables/nyc_margin_gap_summary_since_2019.csv
+!results/tables/nyc_backend_extension_manifest_since_2019.csv
+!results/tables/nyc_registration_gap_by_count_bin_year_since_2019.csv
+!results/tables/nyc_registration_gap_by_recency_bin_year_since_2019.csv
+!results/tables/nyc_registration_gap_by_end_bin_year_since_2019.csv
+!results/tables/nyc_timing_monthly_summary_since_2025.csv
+!results/tables/nyc_timing_monthly_gap_summary_since_2025.csv
+!results/tables/nyc_timing_monthly_gap_by_borough_since_2025.csv
+!results/tables/nyc_status_top_counts_since_2025.csv
+!results/tables/nyc_status_family_summary_since_2025.csv
+!results/tables/nyc_status_family_gap_summary_since_2025.csv
 !results/tables/prepolicy_state_profiles.csv
 !results/tables/quarterly_reporting_summary.csv
 !results/tables/saint_paul_fhfa_policy_summary.csv

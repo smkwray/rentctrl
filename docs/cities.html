@@ -129,6 +129,55 @@
       <div class="warning-box"><p><strong>Design sensitivity:</strong> The borough-year and building-FE models show a large, growing gap. But the refined within-community-board match (28,746 well-balanced pairs) shows effects near zero by 2025. This means the result depends heavily on what comparison group is used and how unobserved confounders are handled. These are not settled causal estimates.</p></div>
     </section>
 
+    <!-- ═══ NYC Follow-On ═══ -->
+    <section class="section section-followon">
+      <div class="section-header"><h2>Where the Difference Concentrates</h2><span class="section-tag">NYC follow-on</span></div>
+      <p>The six approaches above establish that a gap exists in some designs and not others. The next question is narrower: <em>among the designs that show a gap, where does it live?</em> The follow-on artifacts decompose the 2025 result by geography, margin, enforcement timing, and resolution status. All findings remain descriptive and design-sensitive.</p>
+
+      <div class="insight-strip">
+        <div class="insight-chip">
+          <div class="chip-value">47,256 &rarr; 28,746</div>
+          <div class="chip-label">Treated-Stock Funnel</div>
+          <div class="chip-detail">RSBL &rarr; HPD-observed &rarr; stratified &rarr; CB-matched</div>
+        </div>
+        <div class="insight-chip">
+          <div class="chip-value">87% &middot; 77% &middot; 65% &middot; 58%</div>
+          <div class="chip-label">Borough Coverage</div>
+          <div class="chip-detail">Bronx &middot; Manhattan &middot; Queens &middot; Brooklyn</div>
+        </div>
+        <div class="insight-chip">
+          <div class="chip-value">&minus;0.12 / +9.6</div>
+          <div class="chip-label">Extensive vs. Intensive</div>
+          <div class="chip-detail">Any-violation rate gap / positive-only count gap</div>
+        </div>
+        <div class="insight-chip">
+          <div class="chip-value">+5.1</div>
+          <div class="chip-label">Registration Recency</div>
+          <div class="chip-detail">2025-plus bin gap (violations/building)</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h3>2025 Monthly Violation Gap</h3>
+        <p class="chart-subtitle">
+          Treated-minus-control mean HPD violations per building by calendar month. The gap is positive in every month but compresses sharply in June and November (muted bars), when control-building violations spike&mdash;likely seasonal enforcement or inspection cycles that affect all buildings equally.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="nycMonthlyGapCitiesChart"></canvas></div>
+      </div>
+
+      <div class="chart-container">
+        <h3>2025 Violation Gap by Enforcement Status</h3>
+        <p class="chart-subtitle">
+          Mean violations per building in 2025, grouped by status family. The &ldquo;open / reinspection&rdquo; category dominates both groups but the treated-control gap is largest there (+4.2 violations/building). &ldquo;Pending administrative&rdquo; and &ldquo;resolved / certified&rdquo; carry smaller gaps. This suggests much of the aggregate gap sits in unresolved or still-cycling enforcement.
+        </p>
+        <div class="chart-canvas-wrap"><canvas id="nycStatusFamilyChart"></canvas></div>
+      </div>
+
+      <div class="insight-box">
+        <p><strong>Why this narrows the interpretation:</strong> The 2025 gap is not evenly distributed. It concentrates in the Bronx (about +10.8 violations/building), in buildings with the most recent registration activity (+5.1 gap in the 2025-plus bin), and in unresolved enforcement cases. On the extensive margin, a slightly <em>higher</em> share of non-stabilized buildings have at least one violation; the positive signal comes from heavily burdened stabilized buildings accumulating far more violations per building. These patterns are consistent with a maintenance-burden story concentrated in a subset of the stabilized stock, but they do not rule out differential enforcement exposure, reporting behavior, or building-age confounding. The design sensitivity shown above&mdash;where tighter matching eliminates the gap&mdash;remains the binding constraint on causal interpretation.</p>
+      </div>
+    </section>
+
     <!-- ═══ San Francisco ═══ -->
     <section id="san-francisco" class="section">
       <div class="section-header"><h2>San Francisco</h2><span class="section-tag">Inventory / Compliance Result</span></div>
@@ -590,6 +639,49 @@
           scales:{
             y:{ beginAtZero:true, title:{display:true,text:'Violation gap (stabilized minus non-stabilized)'}, grid:{color:C.grid} },
             x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* NYC 2025 monthly violation gap (follow-on) */
+      charts.push(new Chart(document.getElementById('nycMonthlyGapCitiesChart'), {
+        type:'bar',
+        data:{
+          labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets:[{
+            label:'Treated \u2212 Control gap',
+            data:[0.31,0.27,0.34,0.40,0.40,0.01,0.42,0.51,0.51,0.53,0.22,0.79],
+            backgroundColor:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(function(m){return(m==='Jun'||m==='Nov')?C.muted:C.accent;}),
+            borderRadius:4
+          }]
+        },
+        options:{
+          responsive:true,
+          plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'Gap: +'+ctx.parsed.y.toFixed(2)+' violations/building';}}}},
+          scales:{
+            y:{beginAtZero:true,title:{display:true,text:'Mean violation gap (treated \u2212 control)'},grid:{color:C.grid}},
+            x:{grid:{display:false}}
+          }
+        }
+      }));
+
+      /* NYC 2025 status family gap (follow-on) */
+      charts.push(new Chart(document.getElementById('nycStatusFamilyChart'), {
+        type:'bar',
+        data:{
+          labels:['Open / reinspection','Pending administrative','Resolved / certified'],
+          datasets:[
+            {label:'Stabilized',data:[6.62,0.34,0.25],backgroundColor:C.accent,borderRadius:4},
+            {label:'Non-stabilized',data:[2.40,0.06,0.05],backgroundColor:C.muted,borderRadius:4}
+          ]
+        },
+        options:{
+          indexAxis:'y',
+          responsive:true,
+          plugins:{tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.x.toFixed(2)+' violations/building';}}}},
+          scales:{
+            x:{beginAtZero:true,title:{display:true,text:'Mean violations per building (2025)'},grid:{color:C.grid}},
+            y:{grid:{display:false}}
           }
         }
       }));

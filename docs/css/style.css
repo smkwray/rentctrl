@@ -279,6 +279,15 @@ code { font-family: var(--font-mono); font-size: 0.875em; background: var(--colo
 .expandable.open .expandable-content { max-height: 2000px; padding: 0.75rem 1.25rem 1.25rem; }
 .expandable.open .expandable-arrow { transform: rotate(90deg); }
 
+/* ── Follow-on section accent ── */
+.section-followon { border-top: 3px solid var(--color-accent); padding-top: 2rem; }
+.section-followon .section-header { border-bottom-color: var(--color-accent); }
+.insight-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1rem 0 1.5rem; }
+.insight-strip .insight-chip { background: var(--color-bg-alt); border: 1px solid var(--color-border); border-left: 3px solid var(--color-accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 0.75rem 1rem; }
+.insight-chip .chip-value { font-size: 1.2rem; font-weight: 800; font-family: var(--font-mono); color: var(--color-accent); letter-spacing: -0.02em; }
+.insight-chip .chip-label { font-size: 0.8rem; font-weight: 600; color: var(--color-heading); margin-top: 0.1rem; }
+.insight-chip .chip-detail { font-size: 0.7rem; color: var(--color-text-light); margin-top: 0.1rem; }
+
 /* ── Footer ── */
 .site-footer { background: var(--color-header-bg); color: rgba(255,255,255,0.6); padding: 2rem 1.5rem; font-size: 0.85rem; margin-top: 4rem; }
 .footer-inner { max-width: var(--max-width); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }

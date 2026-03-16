@@ -206,6 +206,16 @@ The NYC extension joins the **Rent Stabilized Building List** (RGB, 2024) to **H
 
 All building FE coefficients significant at p<0.001. The widening gap suggests stabilized buildings accumulated violations faster than non-stabilized controls. However, the refined within-community-board match (28,746 well-balanced pairs) shows effects near zero by 2025. The result depends heavily on the comparison strategy — these are design-sensitive, not settled causal estimates.
 
+**Follow-on: where the gap concentrates.** A second round of questions decomposes the 2025 result, asking not just whether a gap exists but where it lives. These remain descriptive, design-sensitive findings.
+
+- **Coverage and representativeness.** The treated universe contains 47,256 RSBL buildings; 32,951 are HPD-observed, 32,793 are stratified-eligible, and 28,746 survive the refined community-board matcher. Coverage varies by borough: the Bronx is roughly 87% observed, Manhattan 77%, Queens 65%, Brooklyn 58%.
+- **Borough concentration.** The Bronx carries the largest 2025 gap at about 10.8 additional violations per building. Brooklyn, Manhattan, and Queens cluster between 2.9 and 3.4.
+- **Intensive vs. extensive margin.** By 2025 the any-violation rate gap is slightly negative (−0.12): a higher share of control buildings have at least one violation. But the positive-only count gap is strongly positive (+9.6). The signal appears to come from a smaller set of heavily burdened buildings, not a broad shift in who gets cited.
+- **Registration recency.** Buildings in the most recent registration bin (2025-plus) show the largest gap at about +5.1 violations per building. Older cohorts show smaller gaps.
+- **Unresolved enforcement.** Among 2025 violations, the "open / reinspection" status family carries a treated-control gap of about +4.2. Much of the aggregate gap sits in unresolved or still-cycling enforcement cases.
+
+For the full question shortlist and artifact index, see [results/nyc_additional_question_shortlist.md](results/nyc_additional_question_shortlist.md).
+
 </details>
 
 <details>

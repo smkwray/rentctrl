@@ -151,6 +151,45 @@
       </div>
     </section>
 
+    <!-- NYC follow-on: where the gap lives -->
+    <section class="section section-followon">
+      <div class="section-header"><h2>Where the Gap Lives</h2><span class="section-tag">2025 follow-on</span></div>
+      <p>The building-FE model shows a widening gap, but where does it concentrate? A second round of follow-on questions decomposes the 2025 result. These remain descriptive, design-sensitive findings&mdash;not causal claims.</p>
+
+      <div class="insight-strip">
+        <div class="insight-chip">
+          <div class="chip-value">47,256 &rarr; 28,746</div>
+          <div class="chip-label">Treated-Stock Funnel</div>
+          <div class="chip-detail">RSBL buildings through refined CB matcher</div>
+        </div>
+        <div class="insight-chip">
+          <div class="chip-value">+10.8</div>
+          <div class="chip-label">Bronx 2025 Gap</div>
+          <div class="chip-detail">Largest borough gap (violations/building)</div>
+        </div>
+        <div class="insight-chip">
+          <div class="chip-value">&minus;0.12 / +9.6</div>
+          <div class="chip-label">Extensive vs. Intensive</div>
+          <div class="chip-detail">Any-violation rate gap / positive-only count gap</div>
+        </div>
+        <div class="insight-chip">
+          <div class="chip-value">+4.2</div>
+          <div class="chip-label">Open / Reinspection</div>
+          <div class="chip-detail">Treated-control gap in unresolved enforcement</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h3>2025 Monthly Violation Gap</h3>
+        <p class="chart-subtitle">Treated-minus-control mean violations per building by month. The gap is positive every month but compresses in June and November when control-building violations spike, likely reflecting seasonal enforcement cycles.</p>
+        <div class="chart-canvas-wrap"><canvas id="nycMonthlyGapChart"></canvas></div>
+      </div>
+
+      <div class="insight-box">
+        <p><strong>Narrower read:</strong> The gap concentrates in the Bronx, in buildings with recent registration activity (2025-plus bin: +5.1 gap), and in unresolved enforcement cases. The signal appears to come from a smaller set of heavily burdened stabilized buildings, not a uniform shift across all stabilized stock. These patterns narrow the interpretation but do not settle causality.</p>
+      </div>
+    </section>
+
     <!-- Gateway cards -->
     <section class="section">
       <div class="gateway-grid">
@@ -252,6 +291,28 @@
           scales:{
             y:{ beginAtZero:true, title:{display:true,text:'Mean violations per building'}, grid:{color:C.grid} },
             x:{ grid:{display:false} }
+          }
+        }
+      }));
+
+      /* NYC 2025 monthly violation gap */
+      charts.push(new Chart(document.getElementById('nycMonthlyGapChart'), {
+        type:'bar',
+        data:{
+          labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets:[{
+            label:'Treated \u2212 Control gap',
+            data:[0.31,0.27,0.34,0.40,0.40,0.01,0.42,0.51,0.51,0.53,0.22,0.79],
+            backgroundColor:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(function(m){return(m==='Jun'||m==='Nov')?C.muted:C.accent;}),
+            borderRadius:4
+          }]
+        },
+        options:{
+          responsive:true,
+          plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'Gap: +'+ctx.parsed.y.toFixed(2)+' violations/building';}}}},
+          scales:{
+            y:{beginAtZero:true,title:{display:true,text:'Mean violation gap (treated \u2212 control)'},grid:{color:C.grid}},
+            x:{grid:{display:false}}
           }
         }
       }));

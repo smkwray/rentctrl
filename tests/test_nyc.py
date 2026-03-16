@@ -3,16 +3,22 @@ import pytest
 
 from rent_control_public.nyc import (
     add_bbl_column,
+    add_registration_lifecycle_bins,
+    aggregate_margin_group,
     aggregate_panel_borough_year,
+    aggregate_panel_group_year,
     aggregate_matched_pair_year,
     aggregate_panel_stratum_year,
     borough_year_treated_control_diff,
+    build_group_year_gap_summary,
+    build_margin_gap_summary,
     build_borough_year_summary_table,
     build_borough_pre_post_gap_summary,
     build_matched_pair_panel,
     build_nyc_enriched_analytic_panel,
     build_preperiod_building_features,
     build_treated_year_event_design,
+    build_treated_selection_stage_frame,
     build_socrata_bbl_where,
     build_stratified_registered_rental_panel,
     build_hpd_comparison_building_year_panel,
@@ -22,8 +28,11 @@ from rent_control_public.nyc import (
     canonical_bbl_to_pluto_bbl,
     chunk_values,
     classify_gap_direction,
+    classify_hpd_current_status,
     combine_rsbl_frames,
     extract_pdf_text,
+    fetch_hpd_violation_building_month_summary,
+    fetch_hpd_violation_status_summary,
     hpd_violations_to_monthly_summary,
     hpd_violations_to_yearly_summary,
     make_bbl,
@@ -41,10 +50,12 @@ from rent_control_public.nyc import (
     select_control_columns,
     summarize_rsbl_hpd_match,
     summarize_rsbl_hpd_match_citywide,
+    summarize_treated_selection_coverage,
     summarize_treated_control_balance,
     two_way_demean,
     units_to_bin,
     yearbuilt_to_bin,
+    build_complete_month_index,
 )
 
 
@@ -418,6 +429,45 @@ class TestHpdViolationsToYearlySummary:
         assert list(result["year"]) == [2023, 2024]
 
 
+class TestGroupedHpdFetchHelpers:
+    def test_fetch_hpd_violation_building_month_summary_builds_expected_query(self, monkeypatch):
+        captured: dict[str, object] = {}
+
+        def fake_get_csv_paged(url: str, *, params: dict[str, str], timeout: int, page_size: int, max_pages):
+            captured["url"] = url
+            captured["params"] = params
+            captured["timeout"] = timeout
+            captured["page_size"] = page_size
+            return pd.DataFrame({"inspection_year": ["2024"], "inspection_month": ["3"], "violation_count": ["2"]})
+
+        monkeypatch.setattr("rent_control_public.nyc._get_csv_paged", fake_get_csv_paged)
+        out = fetch_hpd_violation_building_month_summary(borough="Manhattan", since_year=2024)
+
+        assert "inspection_month" in captured["params"]["$select"]
+        assert "inspection_year,inspection_month" in captured["params"]["$group"]
+        assert captured["params"]["$order"] == "boroid,block,lot,inspection_year,inspection_month"
+        assert "inspectiondate >= '2024-01-01T00:00:00'" in captured["params"]["$where"]
+        assert captured["page_size"] == 50000
+        assert out["inspection_year"].iloc[0] == 2024
+        assert out["inspection_month"].iloc[0] == 3
+
+    def test_fetch_hpd_violation_status_summary_builds_expected_query(self, monkeypatch):
+        captured: dict[str, object] = {}
+
+        def fake_get_csv_paged(url: str, *, params: dict[str, str], timeout: int, page_size: int, max_pages):
+            captured["params"] = params
+            return pd.DataFrame({"inspection_year": ["2025"], "currentstatus": ["OPEN"], "violation_count": ["4"]})
+
+        monkeypatch.setattr("rent_control_public.nyc._get_csv_paged", fake_get_csv_paged)
+        out = fetch_hpd_violation_status_summary(borough="Queens", since_year=2025)
+
+        assert "currentstatus IS NOT NULL" in captured["params"]["$where"]
+        assert "currentstatus" in captured["params"]["$group"]
+        assert captured["params"]["$order"] == "boroid,block,lot,inspection_year,currentstatus"
+        assert out["inspection_year"].iloc[0] == 2025
+        assert out["currentstatus"].iloc[0] == "OPEN"
+
+
 # ---------------------------------------------------------------------------
 # Borough-year treated/control summary helpers
 # ---------------------------------------------------------------------------
@@ -708,6 +758,146 @@ class TestEnrichmentHelpers:
         out = summarize_treated_control_balance(panel)
         assert out["treated_rsbl"].tolist() == [1, 0]
         assert out["buildings"].tolist() == [1, 1]
+
+    def test_build_treated_selection_stage_frame(self):
+        rsbl = pd.DataFrame(
+            {
+                "boro_block_lot": ["1000010001", "1000010002", "1000010003"],
+                "borough": ["MANHATTAN", "MANHATTAN", "BROOKLYN"],
+            }
+        )
+        analytic_panel = pd.DataFrame(
+            {
+                "boro_block_lot": ["1000010001", "1000010002", "9999999999"],
+                "treated_rsbl": [1, 1, 0],
+            }
+        )
+        enriched_panel = pd.DataFrame(
+            {
+                "boro_block_lot": ["1000010001", "1000010002"],
+                "borough": ["MANHATTAN", "MANHATTAN"],
+                "communityboard": [101, pd.NA],
+                "yearbuilt": [1920, 1980],
+                "unitstotal": [10, 2],
+                "yearbuilt_bin": ["prewar", "1970_1999"],
+                "units_bin": ["6_19", "1_2"],
+                "bldgclass": ["C7", "D1"],
+                "landuse": [3, 3],
+                "mdr_registered": [1, 1],
+            }
+        )
+        refined_matches = pd.DataFrame({"treated_boro_block_lot": ["1000010001"]})
+        block_matches = pd.DataFrame({"treated_boro_block_lot": ["1000010002"]})
+
+        out = build_treated_selection_stage_frame(
+            rsbl,
+            analytic_panel,
+            enriched_panel,
+            refined_matches=refined_matches,
+            block_matches=block_matches,
+        )
+
+        row1 = out[out["boro_block_lot"] == "1000010001"].iloc[0]
+        row2 = out[out["boro_block_lot"] == "1000010002"].iloc[0]
+        row3 = out[out["boro_block_lot"] == "1000010003"].iloc[0]
+        assert row1["hpd_observed"] == 1
+        assert row1["stratified_eligible"] == 1
+        assert row1["refined_cb_matched"] == 1
+        assert row2["stratified_eligible"] == 0
+        assert row2["within_block_matched"] == 1
+        assert row3["hpd_observed"] == 0
+
+    def test_summarize_treated_selection_coverage(self):
+        frame = pd.DataFrame(
+            {
+                "boro_block_lot": ["1", "2", "3"],
+                "borough": ["MANHATTAN", "MANHATTAN", "BROOKLYN"],
+                "hpd_observed": [1, 0, 1],
+                "mdr_registered": [1, 1, 0],
+                "pluto_enriched": [1, 0, 1],
+                "stratified_eligible": [1, 0, 1],
+                "refined_cb_matched": [1, 0, 0],
+                "within_block_matched": [0, 0, 1],
+            }
+        )
+        overall = summarize_treated_selection_coverage(frame)
+        by_borough = summarize_treated_selection_coverage(frame, group_col="borough")
+
+        assert overall.loc[0, "rsbl_buildings"] == 3
+        assert overall.loc[0, "hpd_observed_share"] == pytest.approx(2 / 3)
+        manhattan = by_borough[by_borough["category"] == "MANHATTAN"].iloc[0]
+        assert manhattan["rsbl_buildings"] == 2
+        assert manhattan["refined_cb_matched_buildings"] == 1
+
+    def test_aggregate_panel_group_year_and_gap(self):
+        panel = pd.DataFrame(
+            {
+                "borough": ["MANHATTAN", "MANHATTAN", "MANHATTAN", "MANHATTAN"],
+                "inspection_year": [2024, 2024, 2025, 2025],
+                "treated_rsbl": [0, 1, 0, 1],
+                "violation_count": [1, 3, 2, 5],
+            }
+        )
+        summary = aggregate_panel_group_year(panel, group_cols="borough")
+        gap = build_group_year_gap_summary(summary, group_cols="borough")
+
+        assert set(summary.columns) == {
+            "borough",
+            "inspection_year",
+            "treated_rsbl",
+            "building_count",
+            "mean_violation_count",
+            "total_violation_count",
+        }
+        row_2025 = gap[gap["inspection_year"] == 2025].iloc[0]
+        assert row_2025["diff"] == pytest.approx(3.0)
+        assert row_2025["ratio"] == pytest.approx(2.5)
+
+    def test_aggregate_margin_group_and_gap(self):
+        panel = pd.DataFrame(
+            {
+                "inspection_year": [2024, 2024, 2024, 2024],
+                "treated_rsbl": [0, 0, 1, 1],
+                "violation_count": [0, 2, 1, 3],
+            }
+        )
+        summary = aggregate_margin_group(panel, group_cols="inspection_year")
+        gap = build_margin_gap_summary(summary, group_cols="inspection_year")
+
+        treated = summary[summary["treated_rsbl"] == 1].iloc[0]
+        assert treated["any_violation_rate"] == pytest.approx(1.0)
+        assert treated["mean_positive_violation_count"] == pytest.approx(2.0)
+        row = gap.iloc[0]
+        assert row["any_violation_rate_diff"] == pytest.approx(0.5)
+        assert row["mean_violation_count_diff"] == pytest.approx(1.0)
+        assert row["mean_positive_violation_count_diff"] == pytest.approx(0.0)
+
+    def test_add_registration_lifecycle_bins(self):
+        panel = pd.DataFrame(
+            {
+                "registration_count": [pd.NA, 1, 2, 7],
+                "lastregistrationdate": [None, "2021-01-01", "2024-05-01", "2025-07-01"],
+                "registrationenddate": [None, "2024-09-01", "2025-09-01", "2026-09-01"],
+            }
+        )
+        out = add_registration_lifecycle_bins(panel)
+        assert out["registration_count_bin"].tolist() == ["missing", "1", "2", "3_plus"]
+        assert out["registration_recency_bin"].tolist() == ["missing", "pre_2022", "2024", "2025_plus"]
+        assert out["registration_end_bin"].tolist() == ["missing", "through_2024_or_missing", "2025", "2026_plus"]
+
+    def test_classify_hpd_current_status(self):
+        assert classify_hpd_current_status("VIOLATION WILL BE REINSPECTED") == "open_reinspection"
+        assert classify_hpd_current_status("PENDING ADMINISTRATIVE REVIEW") == "pending_administrative"
+        assert classify_hpd_current_status("VIOLATION CLOSED") == "resolved_or_certified"
+        assert classify_hpd_current_status("NOT COMPLIED WITH") == "open_reinspection"
+        assert classify_hpd_current_status("NOV CERTIFIED ON TIME") == "resolved_or_certified"
+        assert classify_hpd_current_status("SOME OTHER STATUS") == "other"
+
+    def test_build_complete_month_index(self):
+        out = build_complete_month_index(start_year=2024, end_year=2024)
+        assert len(out) == 12
+        assert out.iloc[0]["year_month"] == "2024-01"
+        assert out.iloc[-1]["year_month"] == "2024-12"
 
 
 class TestMatchingHelpers:

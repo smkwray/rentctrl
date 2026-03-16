@@ -1,0 +1,3 @@
+question_id,question,status,source_function,next_artifact
+NYC_Q5,Does the gap differ by registration lifecycle or finer monthly timing?,built,fetch_hpd_violation_building_month_summary,results/tables/nyc_timing_monthly_gap_summary_since_2025.csv
+NYC_Q6,Are stabilized-building violations more likely to remain open or unresolved?,built,fetch_hpd_violation_status_summary,results/tables/nyc_status_family_gap_summary_since_2025.csv
