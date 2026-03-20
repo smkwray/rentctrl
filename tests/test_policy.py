@@ -15,5 +15,6 @@ def test_policy_panel_build():
     or_q2 = q[(q["state_abbr"] == "OR") & (q["calendar_period"] == "2019Q2")]
     assert int(or_q1["policy_active_preferred"].iloc[0]) == 0
     assert int(or_q2["policy_active_preferred"].iloc[0]) == 1
+    assert "event_time_quarters_alternative" in q.columns
     annual = aggregate_annual_policy_panel(q)
     assert not annual.empty

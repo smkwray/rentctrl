@@ -1,0 +1,4 @@
+state_name,state_abbr,state_fips,year,permits_units_total,u5p_units,permits_units_multifamily,permits_units_multifamily_share
+California,CA,06,2010,150,40,60,0.4
+Oregon,OR,41,2019,120,30,50,0.4167
+Washington,WA,53,2024,180,50,80,0.4444

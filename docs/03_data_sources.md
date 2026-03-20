@@ -17,8 +17,9 @@ Why core:
 
 Status in starter:
 - variable mapping included,
-- one small sample extract staged,
-- full panel downloader left for Codex.
+- full panel downloader implemented,
+- processed panel assembled under a strict coverage manifest,
+- 2020 remains intentionally absent because the ACS 1-year release does not exist.
 
 ### Census Building Permits Survey
 Use for:
@@ -52,6 +53,17 @@ Why core:
 - official,
 - reproducible URL structure,
 - enough detail without requiring paid access.
+
+## Current build contract
+
+The public statewide build now expects:
+
+- annual baseline domains: policy, ACS, BPS, FHFA, QCEW
+- quarterly baseline domains: policy, FHFA, QCEW
+
+The merged panel builder writes `data/processed/data_coverage_manifest.csv` on every run and can fail in strict mode if any required domain is missing, malformed, or non-ready for baseline use.
+
+This means downstream reporting no longer silently treats partial panels as successful baseline builds.
 
 ---
 

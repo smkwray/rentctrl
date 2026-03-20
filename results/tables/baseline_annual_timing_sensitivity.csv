@@ -1,0 +1,13 @@
+outcome,preferred_avg_post_coef,alternative_avg_post_coef,preferred_sign,alternative_sign,sign_stable,rough_magnitude_stable,preferred_first_post_p_value_resampled,alternative_first_post_p_value_resampled,preferred_first_post_significant_10pct,alternative_first_post_significant_10pct,resampled_significance_stable
+permits_units_total,-12818.86146040536,-12818.86146040536,negative,negative,True,True,0.250996015936255,0.2788844621513944,False,False,True
+permits_units_5plus,-5044.438183469742,-5044.438183469742,negative,negative,True,True,0.549800796812749,0.5776892430278885,False,False,True
+permits_units_multifamily_share,-0.04092762245108517,-0.04092762245108517,negative,negative,True,True,0.6932270916334662,0.7370517928286853,False,False,True
+index_sa_mean,-18.655796023079272,-18.655796023079272,negative,negative,True,True,0.701195219123506,0.6135458167330677,False,False,True
+qcew_total_covered_emplvl,-234905.53443272886,-234905.53443272886,negative,negative,True,True,0.0199203187250996,0.00796812749003984,True,True,True
+qcew_total_covered_avg_weekly_wage,41.82931658552225,41.82931658552225,positive,positive,True,True,0.03187250996015936,0.035856573705179286,True,True,True
+same_house_1y_pct,0.31260943364991506,0.31260943364991506,positive,positive,True,True,0.3346613545816733,0.30278884462151395,False,False,True
+moved_last_year_pct,-0.31260943364990545,-0.31260943364990545,negative,negative,True,True,0.3346613545816733,0.30278884462151395,False,False,True
+moved_different_state_pct,0.7135191660128236,0.7135191660128236,positive,positive,True,True,0.8844621513944223,0.852589641434263,False,False,True
+renter_share_pct,0.33961726115085183,0.33961726115085183,positive,positive,True,True,0.3784860557768924,0.398406374501992,False,False,True
+DP04_0134E,-9.883132393389701,-9.883132393389701,negative,negative,True,True,0.6573705179282868,0.7171314741035857,False,False,True
+rent_burden_30_plus_pct,-0.5435700204906201,-0.5435700204906201,negative,negative,True,True,0.4302788844621514,0.3545816733067729,False,False,True

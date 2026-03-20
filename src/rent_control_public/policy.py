@@ -62,7 +62,12 @@ def expand_quarterly_policy_panel(
         (merged["period"].dt.year - merged["preferred_treat_period"].dt.year) * 4
         + (merged["period"].dt.quarter - merged["preferred_treat_period"].dt.quarter)
     )
+    merged["event_time_quarters_alternative"] = (
+        (merged["period"].dt.year - merged["alternative_treat_period"].dt.year) * 4
+        + (merged["period"].dt.quarter - merged["alternative_treat_period"].dt.quarter)
+    )
     merged.loc[merged["ever_treated"].eq(0), "event_time_quarters_preferred"] = pd.NA
+    merged.loc[merged["ever_treated"].eq(0), "event_time_quarters_alternative"] = pd.NA
     return merged.sort_values(["state_abbr", "period"]).reset_index(drop=True)
 
 
@@ -76,7 +81,9 @@ def aggregate_annual_policy_panel(quarterly_panel: pd.DataFrame) -> pd.DataFrame
             policy_active_preferred=("policy_active_preferred", "max"),
             policy_active_alternative=("policy_active_alternative", "max"),
             first_event_time_quarters=("event_time_quarters_preferred", "min"),
+            first_event_time_quarters_alternative=("event_time_quarters_alternative", "min"),
         )
     )
     out["event_time_years_preferred"] = out["first_event_time_quarters"] / 4.0
+    out["event_time_years_alternative"] = out["first_event_time_quarters_alternative"] / 4.0
     return out.sort_values(["state_abbr", "year"]).reset_index(drop=True)

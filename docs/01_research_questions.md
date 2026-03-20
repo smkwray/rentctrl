@@ -80,7 +80,7 @@ This helps separate:
 
 ### 10. Were California and Oregon similar enough to pool?
 
-Codex should estimate:
+The build should estimate:
 - separate models,
 - stacked event studies,
 - pooled treatment with state-specific event interactions.

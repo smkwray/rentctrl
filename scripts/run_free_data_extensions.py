@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from rent_control_public.reporting import add_per_1000_metric, summarize_event_window_coefficients
+from rent_control_public.pipeline import load_coverage_manifest, manifest_domain_status
 
 
 OUTCOME_METADATA = {
@@ -38,6 +39,19 @@ QUESTION_ROWS = [
     ("Q9", "Did impacts differ for rent levels versus burden versus mobility?"),
     ("Q10", "Were California and Oregon similar enough to pool?"),
 ]
+
+QUESTION_DOMAINS = {
+    "Q1": ["acs"],
+    "Q2": ["acs"],
+    "Q3": ["acs"],
+    "Q4": ["bps"],
+    "Q5": ["fhfa"],
+    "Q6": ["qcew"],
+    "Q7": ["acs"],
+    "Q8": ["bps"],
+    "Q9": ["acs", "bps", "fhfa", "qcew"],
+    "Q10": ["acs", "bps", "fhfa", "qcew"],
+}
 
 
 def load_panel() -> pd.DataFrame:
@@ -144,76 +158,89 @@ def summarize_state_specific_effects(panel: pd.DataFrame, results_dir: Path) -> 
 
 
 def build_question_coverage() -> pd.DataFrame:
+    manifest = load_coverage_manifest(ROOT)
+    annual_status = manifest_domain_status(
+        manifest,
+        panel_frequency="annual",
+        domains=["acs", "bps", "fhfa", "qcew"],
+    )
+
+    def with_manifest_note(question_id: str, base_note: str) -> str:
+        missing = [domain for domain in QUESTION_DOMAINS.get(question_id, []) if not annual_status.get(domain, False)]
+        if not missing:
+            return base_note
+        return f"{base_note} Manifest marks these annual domains unavailable: {', '.join(sorted(missing))}."
+
     rows = [
         {
             "question_id": "Q1",
             "question": QUESTION_ROWS[0][1],
             "status": "answered_with_limits",
             "primary_artifacts": "results/tables/event_study_DP04_0134E.txt; results/tables/pretrend_coefficients_DP04_0134E_baseline.csv; results/figures/baseline_median_gross_rent_annual.png",
-            "notes": "ACS occupied-rent coverage is limited to 2010-2019 and 2021-2024.",
+            "notes": with_manifest_note("Q1", "ACS occupied-rent coverage is limited to 2010-2019 and 2021-2024."),
         },
         {
             "question_id": "Q2",
             "question": QUESTION_ROWS[1][1],
             "status": "answered_with_limits",
             "primary_artifacts": "results/tables/event_study_rent_burden_30_plus_pct.txt; results/tables/pretrend_coefficients_rent_burden_30_plus_pct_baseline.csv",
-            "notes": "ACS burden coverage is limited to 2010-2019 and 2021-2024.",
+            "notes": with_manifest_note("Q2", "ACS burden coverage is limited to 2010-2019 and 2021-2024."),
         },
         {
             "question_id": "Q3",
             "question": QUESTION_ROWS[2][1],
             "status": "answered_with_limits",
             "primary_artifacts": "results/tables/event_study_same_house_1y_pct.txt; results/tables/event_study_moved_last_year_pct.txt; results/tables/event_study_moved_different_state_pct.txt",
-            "notes": "Mobility outcomes use ACS 2010-2019 and 2021-2024 only.",
+            "notes": with_manifest_note("Q3", "Mobility outcomes use ACS 2010-2019 and 2021-2024 only."),
         },
         {
             "question_id": "Q4",
             "question": QUESTION_ROWS[3][1],
             "status": "answered",
             "primary_artifacts": "results/tables/event_study_permits_units_total.txt; results/tables/event_study_permits_units_5plus.txt; results/tables/event_study_permits_units_multifamily_share.txt",
-            "notes": "Annual BPS outcomes are fully covered in the current pipeline.",
+            "notes": with_manifest_note("Q4", "Annual BPS outcomes are fully covered in the current pipeline."),
         },
         {
             "question_id": "Q5",
             "question": QUESTION_ROWS[4][1],
             "status": "answered",
             "primary_artifacts": "results/tables/event_study_index_sa_mean.txt; results/tables/pretrend_coefficients_index_sa_mean_baseline.csv; results/figures/quarterly_fhfa_treated_vs_donor.png",
-            "notes": "FHFA remains the strongest secondary outcome family in the current build.",
+            "notes": with_manifest_note("Q5", "FHFA remains the strongest secondary outcome family in the current build."),
         },
         {
             "question_id": "Q6",
             "question": QUESTION_ROWS[5][1],
             "status": "answered_with_limits",
             "primary_artifacts": "results/tables/event_study_qcew_total_covered_emplvl.txt; results/tables/event_study_qcew_total_covered_avg_weekly_wage.txt; results/figures/quarterly_qcew_treated_vs_donor.png",
-            "notes": "QCEW area-slice coverage begins in 2014 and should remain exploratory.",
+            "notes": with_manifest_note("Q6", "QCEW area-slice coverage begins in 2014 and should remain exploratory."),
         },
         {
             "question_id": "Q7",
             "question": QUESTION_ROWS[6][1],
             "status": "suggestive_treated_state_contrast",
             "primary_artifacts": "results/tables/prepolicy_state_profiles.csv; results/tables/state_specific_effect_summary.csv; results/free_data_extensions.md",
-            "notes": "CA has higher baseline rent burden than OR. With only two treated states, heterogeneity is a treated-state contrast rather than a powered pooled interaction.",
+            "notes": with_manifest_note("Q7", "CA has higher baseline rent burden than OR. With only two treated states, heterogeneity is a treated-state contrast rather than a powered pooled interaction."),
         },
         {
             "question_id": "Q8",
             "question": QUESTION_ROWS[7][1],
             "status": "suggestive_treated_state_contrast",
             "primary_artifacts": "results/tables/prepolicy_state_profiles.csv; results/tables/state_specific_effect_summary.csv; results/free_data_extensions.md",
-            "notes": "CA has lower permits per renter household than OR in 2015-2018, so the supply-constraint comparison is treated as a CA-versus-OR contrast.",
+            "notes": with_manifest_note("Q8", "CA has lower permits per renter household than OR in 2015-2018, so the supply-constraint comparison is treated as a CA-versus-OR contrast."),
         },
         {
             "question_id": "Q9",
             "question": QUESTION_ROWS[8][1],
             "status": "answered_with_cross_outcome_summary",
             "primary_artifacts": "results/tables/domain_comparison_summary.csv; results/credibility_interpretation.md; results/free_data_extensions.md",
-            "notes": "Cross-domain comparison uses pooled baseline coefficient summaries normalized to treated pre-policy means where possible.",
+            "notes": with_manifest_note("Q9", "Cross-domain comparison uses pooled baseline coefficient summaries normalized to treated pre-policy means where possible."),
         },
         {
             "question_id": "Q10",
             "question": QUESTION_ROWS[9][1],
             "status": "answered",
             "primary_artifacts": "results/tables/credibility_checks_summary.csv; results/tables/pretrend_coefficients_index_sa_mean_ca_only.csv; results/tables/pretrend_coefficients_index_sa_mean_or_only.csv; results/tables/pretrend_coefficients_index_sa_mean_state_interactions.csv",
-            "notes": "CA-only, OR-only, and pooled state-interaction outputs are now part of the standard package.",
+            "notes": with_manifest_note("Q10", "CA-only, OR-only, and pooled state-interaction outputs are now part of the standard package."),
         },
     ]
     return pd.DataFrame(rows)

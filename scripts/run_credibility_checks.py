@@ -11,6 +11,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from rent_control_public.event_study import add_binned_event_time_dummies, extract_event_study_coefficients, fit_twfe_event_study
+from rent_control_public.pipeline import (
+    DEFAULT_ANNUAL_REQUIRED_DOMAINS,
+    DEFAULT_QUARTERLY_REQUIRED_DOMAINS,
+    require_manifest_readiness,
+)
 
 
 OUTCOME_METADATA = {
@@ -35,6 +40,8 @@ QUARTERLY_OUTCOMES = {
     "qcew_total_covered_emplvl": {"label": "QCEW covered employment", "min_obs": 80},
     "qcew_total_covered_avg_weekly_wage": {"label": "QCEW average weekly wage", "min_obs": 80},
 }
+ANNUAL_RESAMPLE_COUNT = 60
+QUARTERLY_RESAMPLE_COUNT = 60
 
 
 def prepare_event_sample(
@@ -129,11 +136,17 @@ def fit_state_interaction_model(sample: pd.DataFrame, *, outcome: str, treated_s
 
 
 def write_pretrend_plot(coef: pd.DataFrame, *, title: str, path: Path) -> None:
+    ci_low_col = "ci_low_resampled" if "ci_low_resampled" in coef.columns and coef["ci_low_resampled"].notna().any() else "ci_low"
+    ci_high_col = "ci_high_resampled" if "ci_high_resampled" in coef.columns and coef["ci_high_resampled"].notna().any() else "ci_high"
+    event_time = pd.to_numeric(coef["event_time"], errors="coerce")
+    coef_values = pd.to_numeric(coef["coef"], errors="coerce")
+    ci_low = pd.to_numeric(coef[ci_low_col], errors="coerce")
+    ci_high = pd.to_numeric(coef[ci_high_col], errors="coerce")
     plt.figure(figsize=(9, 5.5))
     plt.axhline(0, color="black", linewidth=1)
     plt.axvline(-1, color="gray", linestyle=":", linewidth=1)
-    plt.plot(coef["event_time"], coef["coef"], marker="o", linewidth=2, color="#1f4e79")
-    plt.fill_between(coef["event_time"], coef["ci_low"], coef["ci_high"], color="#9ec5e5", alpha=0.4)
+    plt.plot(event_time, coef_values, marker="o", linewidth=2, color="#1f4e79")
+    plt.fill_between(event_time, ci_low, ci_high, color="#9ec5e5", alpha=0.4)
     plt.title(title)
     plt.xlabel("Event time (years)")
     plt.ylabel("Coefficient")
@@ -190,6 +203,11 @@ def add_alternative_quarter_event_time(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def run() -> None:
+    require_manifest_readiness(
+        ROOT,
+        annual_domains=DEFAULT_ANNUAL_REQUIRED_DOMAINS,
+        quarterly_domains=DEFAULT_QUARTERLY_REQUIRED_DOMAINS,
+    )
     panel = pd.read_csv(ROOT / "data" / "processed" / "core_state_panel_annual.csv", dtype={"state_fips": str})
     quarterly_panel = pd.read_csv(ROOT / "data" / "processed" / "core_state_panel_quarterly.csv", dtype={"state_fips": str})
     quarterly_panel = add_alternative_quarter_event_time(quarterly_panel)
@@ -205,7 +223,16 @@ def run() -> None:
     for outcome in MAIN_OUTCOMES:
         sample = prepare_event_sample(panel, outcome=outcome, donor_states=donor_states)
         if is_usable_sample(sample, outcome=outcome):
-            baseline = fit_twfe_event_study(sample, outcome=outcome, unit_col="state_name", time_col="year")
+            baseline = fit_twfe_event_study(
+                sample,
+                outcome=outcome,
+                unit_col="state_name",
+                time_col="year",
+                event_time_col="event_time_int",
+                resampled_inference="permutation",
+                resample_count=ANNUAL_RESAMPLE_COUNT,
+                random_seed=101,
+            )
             coef = extract_event_study_coefficients(baseline)
             coef.to_csv(results_dir / f"pretrend_coefficients_{outcome}_baseline.csv", index=False)
             write_pretrend_plot(
@@ -246,7 +273,16 @@ def run() -> None:
 
         placebo_sample = prepare_event_sample(panel, outcome=outcome, donor_states=donor_states, placebo_shift_years=2)
         if is_usable_sample(placebo_sample, outcome=outcome):
-            placebo = fit_twfe_event_study(placebo_sample, outcome=outcome, unit_col="state_name", time_col="year")
+            placebo = fit_twfe_event_study(
+                placebo_sample,
+                outcome=outcome,
+                unit_col="state_name",
+                time_col="year",
+                event_time_col="event_time_int",
+                resampled_inference="permutation",
+                resample_count=ANNUAL_RESAMPLE_COUNT,
+                random_seed=202,
+            )
             placebo_coef = extract_event_study_coefficients(placebo)
             placebo_coef.to_csv(results_dir / f"pretrend_coefficients_{outcome}_placebo_2y_early.csv", index=False)
             summary_rows.append(
@@ -267,7 +303,16 @@ def run() -> None:
         west_donors = ["AZ", "CO", "ID", "NV", "UT"]
         west_sample = prepare_event_sample(panel, outcome=outcome, donor_states=west_donors)
         if is_usable_sample(west_sample, outcome=outcome):
-            fit_twfe_event_study(west_sample, outcome=outcome, unit_col="state_name", time_col="year")
+            fit_twfe_event_study(
+                west_sample,
+                outcome=outcome,
+                unit_col="state_name",
+                time_col="year",
+                event_time_col="event_time_int",
+                resampled_inference="permutation",
+                resample_count=ANNUAL_RESAMPLE_COUNT,
+                random_seed=303,
+            )
             summary_rows.append(
                 {
                     "outcome": outcome,
@@ -288,7 +333,16 @@ def run() -> None:
             reduced_sample = prepare_event_sample(panel, outcome=outcome, donor_states=reduced_donors)
             if not is_usable_sample(reduced_sample, outcome=outcome):
                 continue
-            fit_twfe_event_study(reduced_sample, outcome=outcome, unit_col="state_name", time_col="year")
+            fit_twfe_event_study(
+                reduced_sample,
+                outcome=outcome,
+                unit_col="state_name",
+                time_col="year",
+                event_time_col="event_time_int",
+                resampled_inference="permutation",
+                resample_count=ANNUAL_RESAMPLE_COUNT,
+                random_seed=404,
+            )
             summary_rows.append(
                 {
                     "outcome": outcome,
@@ -308,7 +362,16 @@ def run() -> None:
             single_sample = prepare_event_sample(panel, outcome=outcome, treated_states=[treated_state], donor_states=donor_states)
             if not is_usable_sample(single_sample, outcome=outcome):
                 continue
-            single_result = fit_twfe_event_study(single_sample, outcome=outcome, unit_col="state_name", time_col="year")
+            single_result = fit_twfe_event_study(
+                single_sample,
+                outcome=outcome,
+                unit_col="state_name",
+                time_col="year",
+                event_time_col="event_time_int",
+                resampled_inference="permutation",
+                resample_count=ANNUAL_RESAMPLE_COUNT,
+                random_seed=505,
+            )
             single_coef = extract_event_study_coefficients(single_result)
             single_coef.to_csv(results_dir / f"pretrend_coefficients_{outcome}_{treated_state.lower()}_only.csv", index=False)
             summary_rows.append(
@@ -373,7 +436,16 @@ def run() -> None:
                 )
                 continue
 
-            result = fit_twfe_event_study(sample, outcome=outcome, unit_col="state_name", time_col="calendar_period")
+            result = fit_twfe_event_study(
+                sample,
+                outcome=outcome,
+                unit_col="state_name",
+                time_col="calendar_period",
+                event_time_col="event_time_int",
+                resampled_inference="permutation",
+                resample_count=QUARTERLY_RESAMPLE_COUNT,
+                random_seed=606,
+            )
             coef = extract_event_study_coefficients(result)
             coef.to_csv(results_dir / f"pretrend_coefficients_{outcome}_{check_name}.csv", index=False)
             write_pretrend_plot(

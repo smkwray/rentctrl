@@ -1,0 +1,5 @@
+level,frequency,hpi_type,hpi_flavor,place_name,place_id,yr,period,index_nsa,index_sa
+State,quarterly,traditional,purchase-only,California,CA,2010,1,100.0,101.0
+State,quarterly,traditional,purchase-only,California,CA,2010,2,102.0,103.0
+State,quarterly,traditional,purchase-only,Oregon,OR,2024,1,150.0,151.0
+State,quarterly,traditional,purchase-only,Oregon,OR,2024,2,152.0,153.0

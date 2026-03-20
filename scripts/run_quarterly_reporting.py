@@ -9,6 +9,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from rent_control_public.pipeline import DEFAULT_QUARTERLY_REQUIRED_DOMAINS, require_manifest_readiness
+
 
 QUARTERLY_OUTCOMES = {
     "index_sa": {
@@ -132,6 +134,7 @@ The currently accessible Eviction Lab public monthly tracking file does not incl
 
 
 def run() -> None:
+    require_manifest_readiness(ROOT, quarterly_domains=DEFAULT_QUARTERLY_REQUIRED_DOMAINS)
     quarterly = pd.read_csv(ROOT / "data" / "processed" / "core_state_panel_quarterly.csv", dtype={"state_fips": str})
     results_dir = ROOT / "results" / "tables"
     figures_dir = ROOT / "results" / "figures"
@@ -147,8 +150,14 @@ def run() -> None:
             sample_start_year=meta["sample_start_year"],
         )
 
-        preferred = pd.read_csv(results_dir / f"pretrend_coefficients_{outcome}_quarterly_preferred_treatment.csv")
-        alternative = pd.read_csv(results_dir / f"pretrend_coefficients_{outcome}_quarterly_alternative_treatment.csv")
+        preferred_path = results_dir / f"pretrend_coefficients_{outcome}_quarterly_preferred_treatment.csv"
+        alternative_path = results_dir / f"pretrend_coefficients_{outcome}_quarterly_alternative_treatment.csv"
+        if not preferred_path.exists() or not alternative_path.exists():
+            raise FileNotFoundError(
+                f"Missing quarterly timing artifacts for {outcome}. Run scripts/run_credibility_checks.py first."
+            )
+        preferred = pd.read_csv(preferred_path)
+        alternative = pd.read_csv(alternative_path)
         write_timing_sensitivity_plot(
             preferred,
             alternative,
