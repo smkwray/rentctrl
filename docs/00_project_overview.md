@@ -29,19 +29,18 @@ This design is the best balance of:
 - source inventory,
 - core outcome catalog,
 - policy timing metadata,
-- parser scaffolding,
-- real seed raw files,
-- processed starter outputs,
-- Codex task sequencing.
+- downloader entry points,
+- strict panel build with coverage manifest,
+- baseline event-study output package,
+- placebo / donor sensitivity checks,
+- test fixtures and integration checks.
 
-## Deliverables Codex should produce next
+## Deliverables the build should produce next
 
-1. a reproducible ACS state-profile downloader,
-2. a reproducible QCEW state-quarter downloader,
-3. a merged annual core panel,
-4. a baseline event-study output package,
-5. placebo / donor sensitivity checks,
-6. optional second-stage local extensions.
+1. a fully validated public reproduce smoke run,
+2. refreshed checked-in results artifacts from the latest pipeline,
+3. one extension package once the statewide pipeline is stable,
+4. doc maintenance as inference and artifact outputs evolve.
 
 ## What not to do first
 

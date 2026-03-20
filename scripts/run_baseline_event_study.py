@@ -9,8 +9,10 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from rent_control_public.event_study import add_binned_event_time_dummies, fit_twfe_event_study
+from rent_control_public.event_study import add_binned_event_time_dummies, extract_event_study_coefficients, fit_twfe_event_study
+from rent_control_public.pipeline import DEFAULT_ANNUAL_REQUIRED_DOMAINS, require_manifest_readiness
 from rent_control_public.policy import load_policy_events
+from rent_control_public.reporting import summarize_event_window_coefficients
 
 
 DEFAULT_OUTCOMES = [
@@ -115,6 +117,8 @@ PLOT_OUTCOMES = [
     "moved_different_state_pct",
     "renter_share_pct",
 ]
+
+RESAMPLE_COUNT = 250
 
 
 def policy_timing_note(policy_events: pd.DataFrame) -> str:
@@ -244,7 +248,95 @@ def write_summary_tables(df: pd.DataFrame, policy_events: pd.DataFrame, results_
     donor_states.to_csv(results_dir / "baseline_donor_pool_notes.csv", index=False)
 
 
+def prepare_annual_event_sample(
+    df: pd.DataFrame,
+    *,
+    outcome: str,
+    event_time_col: str,
+    min_bin: int = -4,
+    max_bin: int = 4,
+) -> pd.DataFrame:
+    sample = df[df["analysis_role"].isin(["core_treated", "donor"])].copy()
+    sample = sample.dropna(subset=[outcome]).copy()
+    if sample.empty:
+        return sample
+    sample["event_time_int"] = pd.to_numeric(sample[event_time_col], errors="coerce").round().astype("Int64")
+    sample = add_binned_event_time_dummies(
+        sample,
+        "event_time_int",
+        min_bin=min_bin,
+        max_bin=max_bin,
+        reference_period=-1,
+    )
+    return sample
+
+
+def is_usable_sample(sample: pd.DataFrame) -> bool:
+    return not sample.empty and len(sample) >= 10 and sample["year"].nunique() >= 3 and sample["state_name"].nunique() >= 3
+
+
+def summarize_timing_sensitivity(
+    preferred: pd.DataFrame,
+    alternative: pd.DataFrame,
+    *,
+    outcome: str,
+) -> dict[str, object]:
+    preferred_summary = summarize_event_window_coefficients(preferred)
+    alternative_summary = summarize_event_window_coefficients(alternative)
+    preferred_avg_post = float(preferred_summary["avg_post_coef"].iloc[0]) if not preferred_summary.empty and pd.notna(preferred_summary["avg_post_coef"].iloc[0]) else pd.NA
+    alternative_avg_post = float(alternative_summary["avg_post_coef"].iloc[0]) if not alternative_summary.empty and pd.notna(alternative_summary["avg_post_coef"].iloc[0]) else pd.NA
+
+    preferred_first_post = preferred[preferred["event_time"] == 0]
+    alternative_first_post = alternative[alternative["event_time"] == 0]
+    preferred_first_post_p = preferred_first_post["p_value_resampled"].iloc[0] if not preferred_first_post.empty else pd.NA
+    alternative_first_post_p = alternative_first_post["p_value_resampled"].iloc[0] if not alternative_first_post.empty else pd.NA
+
+    def sign_label(value: object) -> str:
+        if pd.isna(value):
+            return "missing"
+        if value > 0:
+            return "positive"
+        if value < 0:
+            return "negative"
+        return "zero"
+
+    def rough_magnitude_stable(left: object, right: object) -> bool:
+        if pd.isna(left) or pd.isna(right):
+            return False
+        if abs(left) < 1e-9 and abs(right) < 1e-9:
+            return True
+        if abs(left) < 1e-9 or abs(right) < 1e-9:
+            return False
+        ratio = min(abs(left), abs(right)) / max(abs(left), abs(right))
+        return ratio >= 0.67
+
+    def sig_flag(value: object) -> object:
+        if pd.isna(value):
+            return pd.NA
+        return bool(float(value) <= 0.1)
+
+    preferred_sig = sig_flag(preferred_first_post_p)
+    alternative_sig = sig_flag(alternative_first_post_p)
+
+    return {
+        "outcome": outcome,
+        "preferred_avg_post_coef": preferred_avg_post,
+        "alternative_avg_post_coef": alternative_avg_post,
+        "preferred_sign": sign_label(preferred_avg_post),
+        "alternative_sign": sign_label(alternative_avg_post),
+        "sign_stable": sign_label(preferred_avg_post) == sign_label(alternative_avg_post),
+        "rough_magnitude_stable": rough_magnitude_stable(preferred_avg_post, alternative_avg_post),
+        "preferred_first_post_p_value_resampled": preferred_first_post_p,
+        "alternative_first_post_p_value_resampled": alternative_first_post_p,
+        "preferred_first_post_significant_10pct": preferred_sig,
+        "alternative_first_post_significant_10pct": alternative_sig,
+        "resampled_significance_stable": preferred_sig == alternative_sig if pd.notna(preferred_sig) and pd.notna(alternative_sig) else pd.NA,
+    }
+
+
 def main() -> None:
+    require_manifest_readiness(ROOT, annual_domains=DEFAULT_ANNUAL_REQUIRED_DOMAINS)
+
     panel_path = Path("data/processed/core_state_panel_annual.csv")
     if not panel_path.exists():
         raise FileNotFoundError(f"Missing {panel_path}. Run scripts/build_core_state_panel.py first.")
@@ -255,32 +347,55 @@ def main() -> None:
     results_dir.mkdir(parents=True, exist_ok=True)
     figures_dir.mkdir(parents=True, exist_ok=True)
     policy_events = load_policy_events(ROOT / "config" / "policy_events_core.csv")
+    timing_rows: list[dict[str, object]] = []
 
     for outcome in DEFAULT_OUTCOMES:
         if outcome not in df.columns:
             continue
-        sample = df[df["analysis_role"].isin(["core_treated", "donor"])].copy()
-        sample = sample.dropna(subset=[outcome])
-        if sample.empty or len(sample) < 10 or sample["year"].nunique() < 3 or sample["state_name"].nunique() < 3:
+
+        preferred_sample = prepare_annual_event_sample(df, outcome=outcome, event_time_col="event_time_years_preferred")
+        if not is_usable_sample(preferred_sample):
             print(f"skipped {outcome}: insufficient non-missing sample for baseline event study")
             continue
-        sample["event_time_int"] = pd.to_numeric(sample["event_time_years_preferred"], errors="coerce").round().astype("Int64")
-        sample = add_binned_event_time_dummies(
-            sample,
-            "event_time_int",
-            min_bin=-4,
-            max_bin=4,
-            reference_period=-1,
-        )
-        result = fit_twfe_event_study(
-            sample,
+
+        preferred_result = fit_twfe_event_study(
+            preferred_sample,
             outcome=outcome,
             unit_col="state_name",
             time_col="year",
+            event_time_col="event_time_int",
+            resampled_inference="permutation",
+            resample_count=RESAMPLE_COUNT,
+            random_seed=17,
         )
+        preferred_coef = extract_event_study_coefficients(preferred_result)
         out_path = results_dir / f"event_study_{outcome}.txt"
-        out_path.write_text(result.model_summary)
+        coef_path = results_dir / f"event_study_{outcome}_coefficients.csv"
+        out_path.write_text(preferred_result.model_summary)
+        preferred_coef.to_csv(coef_path, index=False)
         print(f"wrote {out_path}")
+        print(f"wrote {coef_path}")
+
+        alternative_sample = prepare_annual_event_sample(df, outcome=outcome, event_time_col="event_time_years_alternative")
+        if not is_usable_sample(alternative_sample):
+            continue
+        alternative_result = fit_twfe_event_study(
+            alternative_sample,
+            outcome=outcome,
+            unit_col="state_name",
+            time_col="year",
+            event_time_col="event_time_int",
+            resampled_inference="permutation",
+            resample_count=RESAMPLE_COUNT,
+            random_seed=23,
+        )
+        alternative_coef = extract_event_study_coefficients(alternative_result)
+        timing_rows.append(summarize_timing_sensitivity(preferred_coef, alternative_coef, outcome=outcome))
+
+    if timing_rows:
+        timing_path = results_dir / "baseline_annual_timing_sensitivity.csv"
+        pd.DataFrame(timing_rows).to_csv(timing_path, index=False)
+        print(f"wrote {timing_path}")
 
     write_baseline_plots(df, policy_events, figures_dir)
     write_summary_tables(df, policy_events, results_dir)

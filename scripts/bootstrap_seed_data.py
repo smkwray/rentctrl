@@ -28,6 +28,7 @@ from rent_control_public.policy import aggregate_annual_policy_panel, expand_qua
 
 def main() -> None:
     ensure_project_dirs()
+    print("bootstrap_seed_data.py builds seed/demo artifacts only; use scripts/reproduce_public_baseline.py for the public statewide baseline.")
 
     # Build BPS outputs
     bps_state = load_state_annual_dir(RAW_DIR / "bps" / "state")

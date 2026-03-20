@@ -1,13 +1,13 @@
-city,status,audit_artifact,primary_join_key,decision,next_backend_task
-New York City,audited,docs/14_nyc_city_audit.md,borough+block+lot,proceed,Download one borough RGB PDF and validate borough-block-lot join rates against HPD violations.
-Los Angeles,audited,docs/15_los_angeles_city_audit.md,address+APN_if_available,proceed,Pull bounded RSO and SCEP samples and validate APN or address match rates.
-Oakland,audited,docs/16_oakland_city_audit.md,address+case_number+APN_if_available,proceed,Audit RAP search fields and verify whether case data are exportable beyond interactive lookup.
-Berkeley,audited,docs/17_berkeley_city_audit.md,address+unit_identifier,proceed,Audit Unit Information Lookup mechanics and field consistency on a bounded sample.
-Washington, DC,audited,docs/18_dc_city_audit.md,address+registration_or_accommodation_id_if_exposed,proceed,Audit public RentRegistry query and export fields on rentregistry.dc.gov.
-Saint Paul,audited,docs/19_saint_paul_city_audit.md,policy_timing_case_study,proceed,Assemble ordinance/amendment dates and pull Ramsey County plus Twin Cities backbone series.
-San Francisco,audited,docs/20_san_francisco_city_audit.md,address+APN+license_year,proceed_with_limits,Audit the public Rent Board Portal fields and determine whether year-by-year inventory or license records can be systematically collected.
-San Jose,audited,docs/21_san_jose_city_audit.md,zip_code+period,proceed_with_limits,Audit whether the public registry and petition maps expose downloadable underlying layers or CSVs.
-West Hollywood,audited,docs/22_west_hollywood_city_audit.md,address+unit+parcel,proceed,Parse the Rent Stabilized Addresses PDF and audit whether hearings or THP outcomes can be systematically linked by address or parcel.
-Santa Monica,audited,docs/23_santa_monica_city_audit.md,address+unit,proceed_with_limits,Determine whether a citywide MAR export or written-list request can provide structured fields beyond address and rent ceiling.
-East Palo Alto,audited,docs/24_east_palo_alto_city_audit.md,address+unit+certificate_or_petition_record,proceed_with_limits,Audit board agendas and MAR-related materials for address-level outcomes and decide whether bounded administrative extraction is feasible.
-Mountain View,audited,docs/25_mountain_view_city_audit.md,address,proceed,Audit the public property-coverage search and published reports to determine whether a bounded address-level coverage and petition panel can be assembled.
+city,status,design_type,audit_artifact,primary_join_key,decision,next_backend_task
+New York City,package,building_level_quality_and_maintenance,results/nyc_local_interpretation.md,borough+block+lot,proceed,Continue borough-block-lot validation on a borough sample.
+Los Angeles,pilot,property_level_quality_and_maintenance,results/los_angeles_public_reporting_note.md,address+APN_if_available,proceed,Expand the bounded LAHD sample and stabilize assessor joins.
+Oakland,package,administrative_case_linkage,results/oakland_local_pilot.md,address+case_number+APN_if_available,proceed,Widen the RAP sample and add parcel joins where possible.
+Berkeley,pilot,registry_discovery,results/tables/berkeley_lookup_pilot_summary.csv,address+unit_identifier,proceed,Freeze the registry-discovery layer unless a deeper public endpoint opens.
+"Washington, DC",pilot,parcel_profile,results/dc_local_pilot.md,SSL,proceed,Refine the parcel-profile package instead of returning to RentRegistry scraping.
+Saint Paul,package,policy_timing_case_study,results/saint_paul_policy_timing.md,county_fips+calendar_period,proceed,Keep the modern policy-timing package focused on inference and timing sensitivity.
+San Francisco,package,inventory_backend,results/sf_inventory_reporting_note.md,address+APN+license_year,proceed_with_limits,Keep the inventory backend aligned with the official Rent Board Housing Inventory feed.
+San Jose,package,policy_timing_case_study,results/san_jose_policy_timing.md,county_fips+calendar_period,proceed_with_limits,Maintain the descriptive policy-timing package and refine the comparison counties if needed.
+West Hollywood,package,protected_stock_linkage,results/weho_second_stage_linkage.md,address+unit+parcel,proceed,Treat the protected-stock plus linkage package as the current public surface and only extend to THP if needed.
+Santa Monica,pilot,legal_ceiling_pilot,results/santa_monica_mar_pilot.md,address+unit,proceed_with_limits,Determine whether the MAR lookup can support a bounded ceiling panel.
+East Palo Alto,pilot,board_archive_pilot,results/east_palo_alto_board_pilot.md,address+unit+certificate_or_petition_record,proceed_with_limits,Audit whether board materials can support a durable address-level extraction.
+Mountain View,pilot,search_pilot,results/tables/mountain_view_search_301_summary.csv,address,proceed,Keep the search pilot bounded unless a bulk export or stable panel emerges.

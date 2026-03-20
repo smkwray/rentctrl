@@ -49,37 +49,28 @@ uv.lock
 !config/acs_profile_variables.csv
 !config/city_extension_catalog.csv
 !config/city_extension_question_catalog.csv
+!config/city_audit_status_source.csv
 !config/outcome_catalog.csv
 !config/policy_events_core.csv
 !config/project_settings.yml
 !config/source_catalog.csv
 !config/state_metadata.csv
 
-!docs/
-# Keep the public site and its assets, but not the working markdown corpus.
-!docs/index.html
-!docs/cities.html
-!docs/states.html
-!docs/css/
-!docs/css/**
-!docs/js/
-!docs/js/**
-!docs/assets/
-!docs/assets/**
-!docs/public/
-!docs/public/**
 !public/
 !public/**
 
 !scripts/
 !scripts/bootstrap_seed_data.py
 !scripts/build_core_state_panel.py
+!scripts/build_policy_panels.py
 !scripts/download_acs_state_profile.py
 !scripts/download_bps_state_annual.py
 !scripts/download_fhfa_hpi.py
 !scripts/download_qcew_state_quarters.py
+!scripts/reproduce_public_baseline.py
 !scripts/run_baseline_event_study.py
 !scripts/run_credibility_checks.py
+!scripts/generate_city_audit_status.py
 !scripts/run_free_data_extensions.py
 !scripts/run_quarterly_reporting.py
 !scripts/run_nyc_borough_year_comparison.py
@@ -100,6 +91,11 @@ uv.lock
 
 !tests/
 !tests/*.py
+!tests/conftest.py
+!tests/fixtures/
+!tests/fixtures/**
+!tests/integration/
+!tests/integration/*.py
 
 !results/
 !results/README.md
@@ -110,9 +106,13 @@ uv.lock
 # Keep only curated summary tables/figures that a public site may embed.
 !results/tables/
 !results/tables/baseline_donor_pool_notes.csv
+!results/tables/event_study_*.txt
+!results/tables/event_study_*_coefficients.csv
 !results/tables/baseline_outcome_summary.csv
 !results/tables/baseline_policy_timing_notes.csv
+!results/tables/baseline_annual_timing_sensitivity.csv
 !results/tables/credibility_checks_summary.csv
+!results/tables/pretrend_coefficients_*.csv
 !results/tables/city_extension_priority_shortlist.csv
 !results/tables/city_extension_question_shortlist.csv
 !results/tables/city_audit_status.csv

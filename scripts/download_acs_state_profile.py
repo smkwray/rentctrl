@@ -43,8 +43,15 @@ def main() -> None:
         raise RuntimeError("No ACS state profile years were downloaded. Try a later start year or use --strict for debugging.")
 
     panel = pd.concat(rows, ignore_index=True)
-    panel.to_csv("data/processed/acs_state_profile_panel.csv", index=False)
-    print("wrote data/processed/acs_state_profile_panel.csv")
+    processed_path = Path("data/processed/acs_state_profile_panel.csv")
+    if processed_path.exists():
+        existing = pd.read_csv(processed_path, dtype={"state": str})
+        panel = pd.concat([existing, panel], ignore_index=True)
+        dedupe_cols = [col for col in ["NAME", "state", "year"] if col in panel.columns]
+        if dedupe_cols:
+            panel = panel.sort_values(dedupe_cols).drop_duplicates(subset=dedupe_cols, keep="last")
+    panel.to_csv(processed_path, index=False)
+    print(f"wrote {processed_path}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,13 @@
+city,public_status,current_artifact_path,current_design_type,primary_join_key,current_decision,next_backend_task
+New York City,package,results/nyc_local_interpretation.md,building_level_quality_and_maintenance,borough+block+lot,proceed,Continue borough-block-lot validation on a borough sample.
+Los Angeles,pilot,results/los_angeles_public_reporting_note.md,property_level_quality_and_maintenance,address+APN_if_available,proceed,Expand the bounded LAHD sample and stabilize assessor joins.
+Oakland,package,results/oakland_local_pilot.md,administrative_case_linkage,address+case_number+APN_if_available,proceed,Widen the RAP sample and add parcel joins where possible.
+Berkeley,pilot,results/tables/berkeley_lookup_pilot_summary.csv,registry_discovery,address+unit_identifier,proceed,Freeze the registry-discovery layer unless a deeper public endpoint opens.
+"Washington, DC",pilot,results/dc_local_pilot.md,parcel_profile,SSL,proceed,Refine the parcel-profile package instead of returning to RentRegistry scraping.
+Saint Paul,package,results/saint_paul_policy_timing.md,policy_timing_case_study,county_fips+calendar_period,proceed,Keep the modern policy-timing package focused on inference and timing sensitivity.
+San Francisco,package,results/sf_inventory_reporting_note.md,inventory_backend,address+APN+license_year,proceed_with_limits,Keep the inventory backend aligned with the official Rent Board Housing Inventory feed.
+San Jose,package,results/san_jose_policy_timing.md,policy_timing_case_study,county_fips+calendar_period,proceed_with_limits,Maintain the descriptive policy-timing package and refine the comparison counties if needed.
+West Hollywood,package,results/weho_second_stage_linkage.md,protected_stock_linkage,address+unit+parcel,proceed,Treat the protected-stock plus linkage package as the current public surface and only extend to THP if needed.
+Santa Monica,pilot,results/santa_monica_mar_pilot.md,legal_ceiling_pilot,address+unit,proceed_with_limits,Determine whether the MAR lookup can support a bounded ceiling panel.
+East Palo Alto,pilot,results/east_palo_alto_board_pilot.md,board_archive_pilot,address+unit+certificate_or_petition_record,proceed_with_limits,Audit whether board materials can support a durable address-level extraction.
+Mountain View,pilot,results/tables/mountain_view_search_301_summary.csv,search_pilot,address,proceed,Keep the search pilot bounded unless a bulk export or stable panel emerges.

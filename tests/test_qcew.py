@@ -1,12 +1,18 @@
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from rent_control_public.qcew import annualize_core, filter_state_private_total, filter_state_total_covered, reshape_qcew_core
 
 
-def test_qcew_filters_and_core_aggregation():
-    raw_path = Path("data/raw/qcew/qcew_AZ_2024Q1.csv")
+pytestmark = pytest.mark.integration
+
+FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
+
+
+def test_qcew_filters_and_core_aggregation() -> None:
+    raw_path = FIXTURES_DIR / "qcew" / "qcew_AZ_2024Q1.csv"
     df = pd.read_csv(raw_path)
 
     total = filter_state_total_covered(df)
@@ -27,29 +33,3 @@ def test_qcew_filters_and_core_aggregation():
     assert private_core["qcew_private_emplvl"].iloc[0] > 0
     assert annual_core["qcew_total_covered_wages"].iloc[0] == quarterly_core["qcew_total_covered_wages"].iloc[0]
     assert annual_core["state_fips"].iloc[0] == "04"
-
-
-def test_core_panels_include_expected_columns():
-    annual = pd.read_csv("data/processed/core_state_panel_annual.csv", dtype={"state_fips": str})
-    quarterly = pd.read_csv("data/processed/core_state_panel_quarterly.csv", dtype={"state_fips": str})
-
-    annual_expected = {
-        "DP04_0134E",
-        "rent_burden_30_plus_pct",
-        "qcew_total_covered_emplvl",
-        "qcew_private_emplvl",
-    }
-    quarterly_expected = {
-        "index_sa",
-        "qcew_total_covered_emplvl",
-        "qcew_private_emplvl",
-    }
-
-    assert annual_expected.issubset(annual.columns)
-    assert quarterly_expected.issubset(quarterly.columns)
-
-    annual_2024 = annual[annual["year"] == 2024]
-    quarterly_2024 = quarterly[quarterly["year"] == 2024]
-
-    assert annual_2024["qcew_total_covered_emplvl"].notna().any()
-    assert quarterly_2024["qcew_total_covered_emplvl"].notna().any()

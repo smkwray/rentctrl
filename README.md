@@ -560,28 +560,17 @@ rentctrl/
 ## Reproducing the results
 
 ```bash
-# set up the environment
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# use the external project environment
+/Users/shanewray/venvs/rentctrl/bin/python -m pip install -r requirements.txt
 
-# bootstrap seed data from included raw files
-python -B scripts/bootstrap_seed_data.py
+# run the full public statewide baseline
+/Users/shanewray/venvs/rentctrl/bin/python -B scripts/reproduce_public_baseline.py
 
-# download ACS state profiles
-python -B scripts/download_acs_state_profile.py
-
-# download QCEW state quarter files
-python -B scripts/download_qcew_state_quarters.py
-
-# build the merged state panel
-python -B scripts/build_core_state_panel.py
-
-# run baseline event studies and credibility checks
-python -B scripts/run_baseline_event_study.py
+# or use the Make target
+make reproduce
 
 # run tests
-python -B -m pytest -q
+/Users/shanewray/venvs/rentctrl/bin/python -B -m pytest -q
 ```
 
 Alternative setup using [uv](https://github.com/astral-sh/uv):
@@ -589,9 +578,11 @@ Alternative setup using [uv](https://github.com/astral-sh/uv):
 ```bash
 source .env
 uv pip install -e '.[dev]' --python "$UV_PROJECT_ENVIRONMENT/bin/python"
-uv run python -B scripts/bootstrap_seed_data.py
-# (same scripts as above, prefixed with uv run)
+uv run python -B scripts/reproduce_public_baseline.py
+uv run python -B -m pytest -q
 ```
+
+The public baseline workflow now downloads FHFA, BPS, ACS, and QCEW inputs, builds policy panels, builds strict merged annual and quarterly state panels, runs the baseline event studies, and runs the credibility checks. `scripts/bootstrap_seed_data.py` remains a seed/demo helper and is not part of the public baseline reproduce path.
 
 ## License
 

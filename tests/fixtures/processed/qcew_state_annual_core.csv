@@ -1,0 +1,4 @@
+state_abbr,state_fips,year,qcew_total_covered_emplvl,qcew_private_emplvl,qcew_total_covered_avg_wkly_wage,qcew_private_avg_wkly_wage
+CA,06,2010,1000,900,1200,1100
+OR,41,2019,950,850,1150,1050
+WA,53,2024,1050,925,1250,1150

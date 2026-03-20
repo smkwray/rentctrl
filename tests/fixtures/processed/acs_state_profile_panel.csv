@@ -1,0 +1,4 @@
+NAME,state,year,same_house_1y_pct,moved_last_year_pct,moved_within_us_pct,moved_different_state_pct,DP02_0080PE,DP02_0081PE,DP02_0082PE,DP02_0086PE,DP03_0062E,DP04_0047E,DP04_0047PE,DP04_0134E,DP04_0141PE,DP04_0142PE,rent_burden_30_plus_pct,median_household_income,renter_households,renter_share_pct,median_gross_rent
+California,06,2010,80.0,20.0,10.0,4.0,80.0,10.0,5.0,2.0,80000,1200,40.0,1200,15.0,25.0,40.0,80000,1200,40.0,1200
+Oregon,41,2019,82.0,18.0,9.0,3.0,82.0,9.0,4.5,2.5,76000,1100,38.0,1100,14.0,26.0,40.0,76000,1100,38.0,1100
+Washington,53,2024,84.0,16.0,8.0,2.5,84.0,8.0,4.0,2.0,90000,1300,42.0,1300,13.0,24.0,37.0,90000,1300,42.0,1300

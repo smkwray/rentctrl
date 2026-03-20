@@ -1,0 +1,4 @@
+state_name,state_abbr,state_fips,year,analysis_role,policy_name,ever_treated,policy_active_preferred,policy_active_alternative,event_time_years_preferred,event_time_years_alternative
+California,CA,06,2010,core_treated,AB 1482 Tenant Protection Act,1,0,0,-9,-9
+Oregon,OR,41,2019,core_treated,SB 608 statewide rent stabilization,1,1,0,0,-1
+Washington,WA,53,2024,descriptive_extension,HB 1217 statewide rent increase cap,1,0,0,-1,-2
