@@ -77,23 +77,27 @@
       <div class="section-header"><h2>Statewide Key Findings</h2></div>
       <p>Pooled event-study estimates for Oregon and California relative to 11 donor states. Values show the average post-treatment coefficient as a percentage of the treated pre-policy mean. Evidence quality varies by domain.</p>
       <div class="finding-grid">
-        <div class="finding-card">
-          <div class="fc-value negative">&minus;24.7%</div>
+        <div class="finding-card" data-idx="0">
+          <div class="fc-value">--</div>
+          <div class="fc-badge"></div>
           <div class="fc-label">Housing Permits</div>
           <div class="fc-source">Census Building Permits Survey, 2010&ndash;2024</div>
         </div>
-        <div class="finding-card">
-          <div class="fc-value negative">&minus;7.1%</div>
+        <div class="finding-card" data-idx="3">
+          <div class="fc-value">--</div>
+          <div class="fc-badge"></div>
           <div class="fc-label">House Price Index</div>
           <div class="fc-source">FHFA Purchase-Only HPI, 2010&ndash;2025</div>
         </div>
-        <div class="finding-card">
-          <div class="fc-value neutral">&minus;0.7%</div>
-          <div class="fc-label">Occupied Rent</div>
+        <div class="finding-card" data-idx="4">
+          <div class="fc-value">--</div>
+          <div class="fc-badge"></div>
+          <div class="fc-label">Median Gross Rent</div>
           <div class="fc-source">ACS 1-Year Profiles, 2015&ndash;19 &amp; 21&ndash;24</div>
         </div>
-        <div class="finding-card">
-          <div class="fc-value neutral">&minus;2.3%</div>
+        <div class="finding-card" data-idx="11">
+          <div class="fc-value">--</div>
+          <div class="fc-badge"></div>
           <div class="fc-label">Covered Employment</div>
           <div class="fc-source">BLS QCEW Area Slices, 2014&ndash;2024</div>
         </div>
@@ -337,6 +341,28 @@
       }));
     }
     buildCharts();
+
+    /* Populate finding cards from pipeline data */
+    (function() {
+      var D = window.SITE_DATA;
+      if (!D) return;
+      document.querySelectorAll('.finding-card[data-idx]').forEach(function(card) {
+        var idx = parseInt(card.getAttribute('data-idx'));
+        var val = D.crossOutcome.values[idx];
+        var u = D.crossOutcome.uncertainty[idx] || {};
+        var valEl = card.querySelector('.fc-value');
+        var badgeEl = card.querySelector('.fc-badge');
+        var sign = val < 0 ? '\u2212' : '+';
+        valEl.textContent = sign + Math.abs(val).toFixed(1) + '%';
+        valEl.className = 'fc-value ' + (val < -5 ? 'negative' : val > 5 ? 'positive' : 'neutral');
+        if (u.avgPostPPerm != null) {
+          var p = u.avgPostPPerm;
+          badgeEl.textContent = 'perm p = ' + p.toFixed(2);
+          badgeEl.className = 'fc-badge badge ' + (p < 0.35 ? 'badge-green' : p < 0.55 ? 'badge-yellow' : 'badge-orange');
+        }
+      });
+    })();
+
     window.rcRebuildCharts = function(){ rcChartDefaults(); buildCharts(); };
   </script>
 </body>

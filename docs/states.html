@@ -124,22 +124,9 @@
       </div>
 
       <div class="table-wrap">
-        <table class="data-table">
+        <table class="data-table" id="resultsTable">
           <thead><tr><th>Domain</th><th>Outcome</th><th>What it measures</th><th>Source</th><th class="num">Pre-mean</th><th class="num">Post shift</th><th class="num">% of mean</th><th>Grade</th></tr></thead>
-          <tbody>
-            <tr><td>Supply</td><td class="highlight">Total permits</td><td>New privately-owned housing units authorized by building permits (annual, state-level)</td><td>BPS</td><td class="num">51,845</td><td class="num">-12,819</td><td class="num">-24.7%</td><td><span class="badge badge-green">Answered</span></td></tr>
-            <tr><td>Supply</td><td class="highlight">5+ unit permits</td><td>Permits for buildings with 5 or more units (multifamily construction)</td><td>BPS</td><td class="num">23,890</td><td class="num">-5,044</td><td class="num">-21.1%</td><td><span class="badge badge-green">Answered</span></td></tr>
-            <tr><td>Supply</td><td>Multifamily share</td><td>Fraction of total permits going to 5+ unit buildings</td><td>BPS</td><td class="num">0.459</td><td class="num">-0.041</td><td class="num">-8.9%</td><td><span class="badge badge-green">Answered</span></td></tr>
-            <tr><td>Capitalization</td><td class="highlight">FHFA HPI</td><td>Purchase-only house price index (seasonally adjusted), measuring home sale price trends</td><td>FHFA</td><td class="num">261.4</td><td class="num">-18.7</td><td class="num">-7.1%</td><td><span class="badge badge-green">Answered</span></td></tr>
-            <tr><td>Rent level</td><td>Median gross rent</td><td>Median monthly rent paid by current occupants (not asking rents or new-lease prices)</td><td>ACS</td><td class="num">$1,270</td><td class="num">-$9</td><td class="num">-0.7%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td>Affordability</td><td>Rent burden 30%+</td><td>Share of renter households paying 30% or more of income toward rent</td><td>ACS</td><td class="num">53.1%</td><td class="num">-0.5 pp</td><td class="num">-1.0%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td>Stability</td><td>Same house 1yr</td><td>Share of population living in the same house as one year ago (residential stability)</td><td>ACS</td><td class="num">85.0%</td><td class="num">+0.3 pp</td><td class="num">+0.4%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td>Stability</td><td>Moved last year</td><td>Share of population that moved within the past year</td><td>ACS</td><td class="num">15.0%</td><td class="num">-0.3 pp</td><td class="num">-2.1%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td>Stability</td><td>Moved diff state</td><td>Share that moved from a different state in the past year (interstate migration)</td><td>ACS</td><td class="num">2.3%</td><td class="num">+0.7 pp</td><td class="num">+31.7%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td>Tenure</td><td>Renter share</td><td>Share of occupied housing units that are renter-occupied</td><td>ACS</td><td class="num">42.2%</td><td class="num">+0.4 pp</td><td class="num">+0.9%</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td>Labor</td><td>QCEW weekly wage</td><td>Average weekly wage across all covered employers (total private + government)</td><td>QCEW</td><td class="num">$1,115</td><td class="num">+$42</td><td class="num">+3.8%</td><td><span class="badge badge-orange">Exploratory</span></td></tr>
-            <tr><td>Labor</td><td>QCEW employment</td><td>Total covered employment level (workers covered by unemployment insurance)</td><td>QCEW</td><td class="num">9,999K</td><td class="num">-235K</td><td class="num">-2.3%</td><td><span class="badge badge-orange">Exploratory</span></td></tr>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
@@ -280,6 +267,42 @@
           }
         }}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
       }));
+
+      /* Populate results table from SITE_DATA */
+      (function(){
+        var tb=document.querySelector('#resultsTable tbody');
+        if(!tb) return;
+        var D=window.SITE_DATA;
+        var meta=[
+          {domain:'Supply',desc:'New privately-owned housing units authorized by building permits (annual, state-level)',src:'BPS',grade:'green',gradeLabel:'Answered',highlight:true,fmtPre:function(v){return Math.round(v).toLocaleString();},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(Math.round(v)).toLocaleString();}},
+          {domain:'Supply',desc:'Permits for buildings with 5 or more units (multifamily construction)',src:'BPS',grade:'green',gradeLabel:'Answered',highlight:true,fmtPre:function(v){return Math.round(v).toLocaleString();},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(Math.round(v)).toLocaleString();}},
+          {domain:'Supply',desc:'Fraction of total permits going to 5+ unit buildings',src:'BPS',grade:'green',gradeLabel:'Answered',highlight:false,fmtPre:function(v){return v.toFixed(3);},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(3);}},
+          {domain:'Capitalization',desc:'Purchase-only house price index (seasonally adjusted), measuring home sale price trends',src:'FHFA',grade:'green',gradeLabel:'Answered',highlight:true,fmtPre:function(v){return v.toFixed(1);},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(1);}},
+          {domain:'Rent level',desc:'Median monthly rent paid by current occupants (not asking rents or new-lease prices)',src:'ACS',grade:'yellow',gradeLabel:'Limited',highlight:false,fmtPre:function(v){return '$'+Math.round(v).toLocaleString();},fmtShift:function(v){return (v<0?'\u2212$':'$+')+Math.abs(Math.round(v)).toLocaleString();}},
+          {domain:'Affordability',desc:'Share of renter households paying 30% or more of income toward rent',src:'ACS',grade:'yellow',gradeLabel:'Limited',highlight:false,fmtPre:function(v){return v.toFixed(1)+'%';},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(1)+' pp';}},
+          {domain:'Stability',desc:'Share of population living in the same house as one year ago (residential stability)',src:'ACS',grade:'yellow',gradeLabel:'Limited',highlight:false,fmtPre:function(v){return v.toFixed(1)+'%';},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(1)+' pp';}},
+          {domain:'Stability',desc:'Share of population that moved within the past year',src:'ACS',grade:'yellow',gradeLabel:'Limited',highlight:false,fmtPre:function(v){return v.toFixed(1)+'%';},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(1)+' pp';}},
+          {domain:'Stability',desc:'Share that moved from a different state in the past year (interstate migration)',src:'ACS',grade:'yellow',gradeLabel:'Limited',highlight:false,fmtPre:function(v){return v.toFixed(1)+'%';},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(1)+' pp';}},
+          {domain:'Tenure',desc:'Share of occupied housing units that are renter-occupied',src:'ACS',grade:'yellow',gradeLabel:'Limited',highlight:false,fmtPre:function(v){return v.toFixed(1)+'%';},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(v).toFixed(1)+' pp';}},
+          {domain:'Labor',desc:'Average weekly wage across all covered employers (total private + government)',src:'QCEW',grade:'orange',gradeLabel:'Exploratory',highlight:false,fmtPre:function(v){return '$'+Math.round(v).toLocaleString();},fmtShift:function(v){return (v<0?'\u2212$':'$+')+Math.abs(Math.round(v)).toLocaleString();}},
+          {domain:'Labor',desc:'Total covered employment level (workers covered by unemployment insurance)',src:'QCEW',grade:'orange',gradeLabel:'Exploratory',highlight:false,fmtPre:function(v){return Math.round(v/1000).toLocaleString()+'K';},fmtShift:function(v){return (v<0?'\u2212':'+')+Math.abs(Math.round(v/1000)).toLocaleString()+'K';}}
+        ];
+        D.crossOutcome.labels.forEach(function(label,i){
+          var m=meta[i];
+          var val=D.crossOutcome.values[i];
+          var sign=val>=0?'+':'\u2212';
+          var tr=document.createElement('tr');
+          tr.innerHTML='<td>'+m.domain+'</td>'
+            +'<td'+(m.highlight?' class="highlight"':'')+'>'+(m.highlight?'<strong>':'')+label+(m.highlight?'</strong>':'')+'</td>'
+            +'<td>'+m.desc+'</td>'
+            +'<td>'+m.src+'</td>'
+            +'<td class="num">'+m.fmtPre(D.crossOutcome.preMeans[i])+'</td>'
+            +'<td class="num">'+m.fmtShift(D.crossOutcome.postShifts[i])+'</td>'
+            +'<td class="num">'+sign+Math.abs(val).toFixed(1)+'%</td>'
+            +'<td><span class="badge badge-'+m.grade+'">'+m.gradeLabel+'</span></td>';
+          tb.appendChild(tr);
+        });
+      })();
 
       /* Populate uncertainty table */
       (function(){

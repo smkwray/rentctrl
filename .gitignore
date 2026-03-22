@@ -35,6 +35,7 @@ do/
 data/
 # But allow the docs/data/ generated site-data layer.
 !docs/
+!docs/**
 !docs/data/
 !docs/data/site_data.js
 results/figures/
@@ -43,6 +44,8 @@ uv.lock
 
 # Re-allow the minimal public surface.
 !.gitignore
+!.github/
+!.github/**
 !LICENSE
 !Makefile
 !README.md

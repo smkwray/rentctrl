@@ -1,0 +1,82 @@
+name: Site Data Consistency Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'results/**'
+      - 'scripts/export_site_data.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'results/**'
+      - 'scripts/export_site_data.py'
+
+jobs:
+  check-site-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate site_data.js is parseable and internally consistent
+        run: |
+          node -e "
+            const fs = require('fs');
+            const src = fs.readFileSync('docs/data/site_data.js', 'utf8');
+
+            // Extract the JSON object from the JS assignment
+            const match = src.match(/window\.SITE_DATA\s*=\s*(\{[\s\S]*\});?\s*$/);
+            if (!match) { console.error('Cannot parse SITE_DATA'); process.exit(1); }
+            const data = JSON.parse(match[1]);
+
+            // Check required top-level keys
+            const required = ['crossOutcome','stateContrasts','stateProfiles','credibility','coverage'];
+            for (const k of required) {
+              if (!data[k]) { console.error('Missing key: ' + k); process.exit(1); }
+            }
+
+            // Validate crossOutcome array lengths match
+            const co = data.crossOutcome;
+            const n = co.labels.length;
+            const arrays = ['values','domains','domainColors','preMeans','postShifts','uncertainty'];
+            for (const a of arrays) {
+              if (!co[a] || co[a].length !== n) {
+                console.error('crossOutcome.' + a + ' length mismatch: expected ' + n + ', got ' + (co[a]||[]).length);
+                process.exit(1);
+              }
+            }
+
+            // Verify values match postShifts/preMeans ratio
+            for (let i = 0; i < n; i++) {
+              if (co.preMeans[i] === 0) continue;
+              const expected = (co.postShifts[i] / co.preMeans[i]) * 100;
+              const diff = Math.abs(co.values[i] - expected);
+              if (diff > 0.2) {
+                console.error('Value mismatch for ' + co.labels[i] + ': values=' + co.values[i] + ' but postShift/preMean=' + expected.toFixed(2));
+                process.exit(1);
+              }
+            }
+
+            // Verify uncertainty records have required fields
+            for (let i = 0; i < n; i++) {
+              const u = co.uncertainty[i];
+              if (!u || u.lastPostCoef == null || u.inferMethod == null) {
+                console.error('Incomplete uncertainty for ' + co.labels[i]);
+                process.exit(1);
+              }
+            }
+
+            console.log('site_data.js: ' + n + ' outcomes validated, all checks passed.');
+          "
+
+      - name: Check homepage references SITE_DATA (no hardcoded finding values)
+        run: |
+          # Verify finding cards use data-idx attributes (data-driven)
+          if grep -q 'data-idx=' docs/index.html; then
+            echo 'Homepage finding cards are data-driven.'
+          else
+            echo 'WARNING: Homepage finding cards may contain hardcoded values.'
+            exit 1
+          fi
