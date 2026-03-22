@@ -146,7 +146,8 @@ code { font-family: var(--font-mono); font-size: 0.875em; background: var(--colo
 .content { max-width: var(--max-width); margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
 
 /* ── Page nav (in-page section links) ── */
-.page-nav { display: flex; gap: 0.25rem; overflow-x: auto; border-bottom: 2px solid var(--color-border); margin-bottom: 2rem; padding-bottom: 0; }
+.page-nav { display: flex; gap: 0.25rem; overflow-x: auto; border-bottom: 2px solid var(--color-border); margin-bottom: 2rem; padding-bottom: 0; scrollbar-width: none; -ms-overflow-style: none; }
+.page-nav::-webkit-scrollbar { display: none; }
 .page-nav a { padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all var(--transition); text-decoration: none; }
 .page-nav a:hover { color: var(--color-heading); text-decoration: none; }
 .page-nav a.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
