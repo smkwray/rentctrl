@@ -12,6 +12,16 @@ from rent_control_public.reporting import add_per_1000_metric, summarize_event_w
 from rent_control_public.pipeline import load_coverage_manifest, manifest_domain_status
 
 
+# Census Bureau API sentinel for missing/not-applicable data.
+_CENSUS_SENTINEL = -888888888.0
+
+
+def _clean_numeric(series: "pd.Series") -> "pd.Series":
+    """Convert to numeric and replace Census sentinel values with NaN."""
+    s = pd.to_numeric(series, errors="coerce")
+    return s.where(s != _CENSUS_SENTINEL)
+
+
 OUTCOME_METADATA = {
     "DP04_0134E": {"display_name": "Median gross rent", "domain": "rent_level"},
     "rent_burden_30_plus_pct": {"display_name": "Rent burden 30%+", "domain": "affordability"},
@@ -109,7 +119,7 @@ def summarize_pooled_effects(panel: pd.DataFrame, results_dir: Path) -> pd.DataF
         summary = summarize_event_window_coefficients(coef)
         if summary.empty:
             continue
-        pre_mean = pd.to_numeric(treated_pre[outcome], errors="coerce").mean() if outcome in treated_pre.columns else pd.NA
+        pre_mean = _clean_numeric(treated_pre[outcome]).mean() if outcome in treated_pre.columns else pd.NA
         row = summary.iloc[0].to_dict()
         row.update(
             {
@@ -138,8 +148,10 @@ def summarize_state_specific_effects(panel: pd.DataFrame, results_dir: Path) -> 
         summary = summarize_event_window_coefficients(coef, group_cols=["state_abbr"])
         if summary.empty:
             continue
+        clean = treated_pre[["state_abbr"]].copy()
+        clean[outcome] = _clean_numeric(treated_pre[outcome])
         pre_means = (
-            treated_pre.groupby("state_abbr", as_index=False)[outcome]
+            clean.groupby("state_abbr", as_index=False)[outcome]
             .mean()
             .rename(columns={outcome: "treated_pre_policy_mean"})
         )

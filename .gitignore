@@ -33,6 +33,10 @@ do/
 
 # Data and generated artifacts are private by default unless explicitly re-allowed below.
 data/
+# But allow the docs/data/ generated site-data layer.
+!docs/
+!docs/data/
+!docs/data/site_data.js
 results/figures/
 results/tables/*
 uv.lock
@@ -84,6 +88,7 @@ uv.lock
 !scripts/run_mountain_view_search_pilot.py
 !scripts/run_saint_paul_policy_timing.py
 !scripts/run_west_hollywood_rso_pilot.py
+!scripts/export_site_data.py
 
 !src/
 !src/rent_control_public/
@@ -96,6 +101,9 @@ uv.lock
 !tests/fixtures/**
 !tests/integration/
 !tests/integration/*.py
+
+# Playwright site checks are manual-only; not part of CI.
+tests/test_site_playwright.py
 
 !results/
 !results/README.md

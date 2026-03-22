@@ -145,6 +145,7 @@ Pooled baseline coefficients normalized to treated pre-policy means:
 | Stability | Same house 1yr ago | +0.4% | Answered with limits |
 | Stability | Moved last year | -2.1% | Answered with limits |
 | Stability | Moved different state | +31.7% | Answered with limits |
+| Tenure | Renter share | +0.9% | Answered with limits |
 | Labor | QCEW weekly wage | +3.8% | Exploratory |
 | Labor | QCEW employment | -2.3% | Exploratory |
 

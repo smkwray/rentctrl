@@ -136,8 +136,8 @@ def fit_state_interaction_model(sample: pd.DataFrame, *, outcome: str, treated_s
 
 
 def write_pretrend_plot(coef: pd.DataFrame, *, title: str, path: Path) -> None:
-    ci_low_col = "ci_low_resampled" if "ci_low_resampled" in coef.columns and coef["ci_low_resampled"].notna().any() else "ci_low"
-    ci_high_col = "ci_high_resampled" if "ci_high_resampled" in coef.columns and coef["ci_high_resampled"].notna().any() else "ci_high"
+    ci_low_col = "perm_null_q025" if "perm_null_q025" in coef.columns and coef["perm_null_q025"].notna().any() else "ci_low"
+    ci_high_col = "perm_null_q975" if "perm_null_q975" in coef.columns and coef["perm_null_q975"].notna().any() else "ci_high"
     event_time = pd.to_numeric(coef["event_time"], errors="coerce")
     coef_values = pd.to_numeric(coef["coef"], errors="coerce")
     ci_low = pd.to_numeric(coef[ci_low_col], errors="coerce")

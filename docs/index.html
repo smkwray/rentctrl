@@ -5,9 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>rentctrl &mdash; Statewide Rent Caps and Housing Markets</title>
+  <meta name="description" content="Empirical evaluation of statewide rent-cap policies in Oregon and California using free federal data, with building-level extensions across twelve U.S. cities.">
+  <link rel="canonical" href="https://smkwray.github.io/rentctrl/">
+  <meta property="og:title" content="rentctrl — Statewide Rent Caps and Housing Markets">
+  <meta property="og:description" content="Empirical evaluation of statewide rent-cap policies in Oregon and California using free federal data, with building-level extensions across twelve U.S. cities.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://smkwray.github.io/rentctrl/">
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="data/site_data.js"></script>
 </head>
 <body data-page="home">
 
@@ -15,7 +22,7 @@
     <div class="header-inner">
       <a href="index.html" class="site-logo">rent<span class="logo-accent">ctrl</span></a>
       <div class="header-controls">
-        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+        <button class="nav-toggle" onclick="this.setAttribute('aria-expanded',this.getAttribute('aria-expanded')==='true'?'false':'true');document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
         <button id="themeToggle" class="theme-toggle" onclick="rcToggleTheme()" aria-label="Toggle theme">&#9790;</button>
       </div>
       <nav><ul class="nav-links">
@@ -38,7 +45,7 @@
       <div class="stats-row">
         <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Treated States</div></div>
         <div class="stat-card"><div class="stat-value">11</div><div class="stat-label">Donor States</div></div>
-        <div class="stat-card"><div class="stat-value">13</div><div class="stat-label">Outcomes Tracked</div></div>
+        <div class="stat-card"><div class="stat-value">12</div><div class="stat-label">Outcomes Tracked</div></div>
         <div class="stat-card"><div class="stat-value">89,100</div><div class="stat-label">NYC Buildings</div></div>
         <div class="stat-card"><div class="stat-value">12</div><div class="stat-label">City Audits</div></div>
       </div>
@@ -108,7 +115,8 @@
           <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e67e22;"></span> ACS (rent, burden, mobility, tenure)</div>
           <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#c0392b;"></span> Labor (QCEW)</div>
         </div>
-        <p class="chart-note">Magnitudes are not directly comparable across domains &mdash; coverage windows, evidence quality, and pre-trend reliability differ. See <a href="states.html">States</a> for full tables and robustness checks.</p>
+        <p class="chart-note">Magnitudes are not directly comparable across domains &mdash; coverage windows, evidence quality, and pre-trend reliability differ. See <a href="states.html">States</a> for full tables and robustness checks.
+          <br>Source: <a href="https://github.com/smkwray/rentctrl/blob/main/results/tables/domain_comparison_summary.csv">domain_comparison_summary.csv</a></p>
       </div>
     </section>
 
@@ -130,10 +138,10 @@
           Estimated differential in mean HPD violations per building-year between rent-stabilized and
           non-stabilized buildings, relative to the 2019 baseline. Building fixed effects absorb all
           time-invariant building characteristics. 89,100 buildings, 623,700 building-year observations.
-          Cluster-robust standard errors.
+          Design-sensitive: estimates range from &minus;0.14 to +4.20 across six specifications.
         </p>
         <div class="chart-canvas-wrap"><canvas id="nycFEChart"></canvas></div>
-        <p class="chart-note">All coefficients significant at p&lt;0.001. The widening gap suggests stabilized buildings accumulated violations faster than non-stabilized controls, though this is design-sensitive and not a settled causal claim.</p>
+        <p class="chart-note">The widening gap suggests stabilized buildings accumulated violations faster than non-stabilized controls. However, this is design-sensitive: the refined within-community-board match shows effects near zero. Not a settled causal claim. See <a href="cities.html#nyc">Cities &rarr; NYC</a> for the full six-approach comparison.</p>
       </div>
 
       <div class="chart-container">
@@ -196,12 +204,12 @@
         <div class="gateway-card">
           <h3>Statewide Analysis</h3>
           <p>
-            Pooled TWFE event-study estimates for Oregon and California across 13 outcome variables
+            Pooled TWFE event-study estimates for Oregon and California across 12 outcome variables
             from four federal data sources. Full robustness battery: placebo timing, donor-pool
             sensitivity, single-state models, state interactions, and quarterly timing checks.
           </p>
           <div class="gateway-stats">
-            <div class="gateway-stat"><div class="gs-value">13</div><div class="gs-label">Outcomes</div></div>
+            <div class="gateway-stat"><div class="gs-value">12</div><div class="gs-label">Outcomes</div></div>
             <div class="gateway-stat"><div class="gs-value">116</div><div class="gs-label">Specifications</div></div>
             <div class="gateway-stat"><div class="gs-value">4</div><div class="gs-label">Data Sources</div></div>
           </div>
@@ -245,12 +253,23 @@
       charts = [];
       var C = rcColors();
 
-      /* Cross-outcome bar */
+      /* Cross-outcome bar (from pipeline) with uncertainty tooltip */
+      var D = window.SITE_DATA;
+      var colorMap = {accent:C.accent,green:C.green,orange:C.orange,red:C.red,muted:C.muted};
       charts.push(new Chart(document.getElementById('crossOutcomeChart'), {
         type:'bar',
-        data:{ labels:['Total permits','5+ unit permits','Multifamily share','FHFA HPI','Median gross rent','Rent burden 30%+','Same house 1yr','Moved last year','Moved diff state','Renter share','QCEW weekly wage','QCEW employment'],
-        datasets:[{label:'Avg post (% of pre-policy mean)',data:[-24.7,-21.1,-8.9,-7.1,-0.7,-1.0,0.4,-2.1,31.7,0.9,3.8,-2.3],backgroundColor:[C.accent,C.accent,C.accent,C.green,C.orange,C.orange,C.orange,C.orange,C.orange,C.orange,C.red,C.red],borderRadius:4}]},
-        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.x.toFixed(1)+'%';}}}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
+        data:{ labels:D.crossOutcome.labels,
+        datasets:[{label:'Avg post (% of pre-policy mean)',data:D.crossOutcome.values,backgroundColor:D.crossOutcome.domainColors.map(function(k){return colorMap[k]||C.muted;}),borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{
+          title:function(items){return items[0].label;},
+          label:function(ctx){
+            var u=D.crossOutcome.uncertainty[ctx.dataIndex]||{};
+            var lines=[ctx.parsed.x.toFixed(1)+'% of pre-policy mean'];
+            if(u.lastPostCILowPct!=null) lines.push('Last-coef 95% CI: ['+u.lastPostCILowPct.toFixed(1)+'%, '+u.lastPostCIHighPct.toFixed(1)+'%]');
+            if(u.lastPostPPerm!=null) lines.push('Perm p = '+u.lastPostPPerm.toFixed(3));
+            return lines;
+          }
+        }}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
       }));
 
       /* NYC Building FE event profile */

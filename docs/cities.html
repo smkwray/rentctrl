@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>rentctrl &mdash; City Extensions</title>
+  <meta name="description" content="Building-level rent-regulation analysis across twelve U.S. cities, including NYC's 89,100-building HPD violation study with six modeling approaches.">
+  <link rel="canonical" href="https://smkwray.github.io/rentctrl/cities.html">
+  <meta property="og:title" content="rentctrl — City Extensions">
+  <meta property="og:description" content="Building-level rent-regulation analysis across twelve U.S. cities, including NYC's 89,100-building HPD violation study with six modeling approaches.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://smkwray.github.io/rentctrl/cities.html">
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -15,7 +21,7 @@
     <div class="header-inner">
       <a href="index.html" class="site-logo">rent<span class="logo-accent">ctrl</span></a>
       <div class="header-controls">
-        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+        <button class="nav-toggle" onclick="this.setAttribute('aria-expanded',this.getAttribute('aria-expanded')==='true'?'false':'true');document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
         <button id="themeToggle" class="theme-toggle" onclick="rcToggleTheme()" aria-label="Toggle theme">&#9790;</button>
       </div>
       <nav><ul class="nav-links">
@@ -75,14 +81,34 @@
         </p>
       </div>
 
+      <!-- Six approaches summary — leads with design sensitivity -->
+      <div class="section-header" style="margin-top:2rem;"><h3 style="margin:0;">Six Modeling Approaches</h3></div>
+      <p>Each approach uses a different comparison strategy. Simpler designs show larger effects; tighter matching reduces effect sizes, illustrating design sensitivity. Estimated 2025 gaps range from &minus;0.14 to +4.79 across specifications.</p>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Approach</th><th>What it does</th><th class="num">Buildings</th><th class="num">2025 gap</th><th>Finding</th></tr></thead>
+          <tbody>
+            <tr><td class="highlight">Borough-year descriptive</td><td>Compares means within borough and year, no controls</td><td class="num">89,100</td><td class="num">4.76</td><td>Largest gap, grows every year</td></tr>
+            <tr><td class="highlight">Borough-year WLS model</td><td>Weighted regression on borough-year cells with treatment interaction</td><td class="num">89,100</td><td class="num">4.79 coef</td><td>Significant treatment &times; 2025 (p=0.009)</td></tr>
+            <tr><td class="highlight">Stratified comparison</td><td>Matches within borough &times; community board &times; building age &times; size strata</td><td class="num">89,100</td><td class="num">4.76</td><td>2.9&times; treated/control ratio by 2025</td></tr>
+            <tr><td>Within-community-board match</td><td>Nearest-neighbor matching within community boards (16,406 pairs)</td><td class="num">32,812</td><td class="num">varies</td><td>Pre-period imbalance; treated lower at baseline</td></tr>
+            <tr><td>Refined CB match</td><td>Improved matching with 28,746 pairs and better pre-period balance</td><td class="num">57,492</td><td class="num">&minus;0.14</td><td>Balance improves but effect near zero</td></tr>
+            <tr><td class="highlight">Building fixed effects</td><td>Building FE + year FE + treatment &times; year interactions, cluster SEs</td><td class="num">89,100</td><td class="num">+4.20 coef</td><td>Consistent upward trend, all p&lt;0.001</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warning-box"><p><strong>Design sensitivity:</strong> The borough-year and building-FE models show a large, growing gap. But the refined within-community-board match (28,746 well-balanced pairs) shows effects near zero by 2025. This means the result depends heavily on what comparison group is used and how unobserved confounders are handled. These are not settled causal estimates.</p></div>
+
       <!-- Building FE event profile -->
       <div class="chart-container">
         <h3>Building Fixed-Effects Event Profile</h3>
         <p class="chart-subtitle">
           Estimated additional HPD violations per building-year in stabilized vs. non-stabilized buildings,
           relative to the 2019 baseline. Building fixed effects absorb all time-invariant differences between
-          buildings (location, age, size, ownership). Cluster-robust standard errors. All coefficients
-          p&lt;0.001.
+          buildings (location, age, size, ownership). Cluster-robust standard errors. Design-sensitive:
+          estimates range from &minus;0.14 to +4.20 across specifications (see table above).
         </p>
         <div class="chart-canvas-wrap"><canvas id="nycFEChart"></canvas></div>
         <p class="chart-note">89,100 buildings (32,793 stabilized, 56,307 non-stabilized), 623,700 building-year observations, 2019&ndash;2025.</p>
@@ -107,26 +133,6 @@
         </p>
         <div class="chart-canvas-wrap tall"><canvas id="nycBoroughChart"></canvas></div>
       </div>
-
-      <!-- Six approaches summary -->
-      <div class="section-header" style="margin-top:2rem;"><h3 style="margin:0;">Six Modeling Approaches</h3></div>
-      <p>Each approach uses a different comparison strategy. Simpler designs show larger effects; tighter matching reduces effect sizes, illustrating design sensitivity.</p>
-
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>Approach</th><th>What it does</th><th class="num">Buildings</th><th class="num">2025 gap</th><th>Finding</th></tr></thead>
-          <tbody>
-            <tr><td class="highlight">Borough-year descriptive</td><td>Compares means within borough and year, no controls</td><td class="num">89,100</td><td class="num">4.76</td><td>Largest gap, grows every year</td></tr>
-            <tr><td class="highlight">Borough-year WLS model</td><td>Weighted regression on borough-year cells with treatment interaction</td><td class="num">89,100</td><td class="num">4.79 coef</td><td>Significant treatment &times; 2025 (p=0.009)</td></tr>
-            <tr><td class="highlight">Stratified comparison</td><td>Matches within borough &times; community board &times; building age &times; size strata</td><td class="num">89,100</td><td class="num">4.76</td><td>2.9&times; treated/control ratio by 2025</td></tr>
-            <tr><td>Within-community-board match</td><td>Nearest-neighbor matching within community boards (16,406 pairs)</td><td class="num">32,812</td><td class="num">varies</td><td>Pre-period imbalance; treated lower at baseline</td></tr>
-            <tr><td>Refined CB match</td><td>Improved matching with 28,746 pairs and better pre-period balance</td><td class="num">57,492</td><td class="num">&minus;0.14</td><td>Balance improves but effect near zero</td></tr>
-            <tr><td class="highlight">Building fixed effects</td><td>Building FE + year FE + treatment &times; year interactions, cluster SEs</td><td class="num">89,100</td><td class="num">+4.20 coef</td><td>Consistent upward trend, all p&lt;0.001</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="warning-box"><p><strong>Design sensitivity:</strong> The borough-year and building-FE models show a large, growing gap. But the refined within-community-board match (28,746 well-balanced pairs) shows effects near zero by 2025. This means the result depends heavily on what comparison group is used and how unobserved confounders are handled. These are not settled causal estimates.</p></div>
     </section>
 
     <!-- ═══ NYC Follow-On ═══ -->

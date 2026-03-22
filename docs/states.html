@@ -5,9 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>rentctrl &mdash; Statewide Analysis</title>
+  <meta name="description" content="Statewide TWFE event-study estimates for rent-cap impacts on housing supply, prices, affordability, and labor markets in Oregon and California.">
+  <link rel="canonical" href="https://smkwray.github.io/rentctrl/states.html">
+  <meta property="og:title" content="rentctrl — Statewide Analysis">
+  <meta property="og:description" content="Statewide TWFE event-study estimates for rent-cap impacts on housing supply, prices, affordability, and labor markets in Oregon and California.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://smkwray.github.io/rentctrl/states.html">
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="data/site_data.js"></script>
 </head>
 <body data-page="states">
 
@@ -15,7 +22,7 @@
     <div class="header-inner">
       <a href="index.html" class="site-logo">rent<span class="logo-accent">ctrl</span></a>
       <div class="header-controls">
-        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">&#9776;</button>
+        <button class="nav-toggle" onclick="this.setAttribute('aria-expanded',this.getAttribute('aria-expanded')==='true'?'false':'true');document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
         <button id="themeToggle" class="theme-toggle" onclick="rcToggleTheme()" aria-label="Toggle theme">&#9790;</button>
       </div>
       <nav><ul class="nav-links">
@@ -31,7 +38,7 @@
       <h1>Statewide Analysis</h1>
       <p class="subtitle">
         Pooled TWFE event-study estimates comparing Oregon and California to eleven donor states
-        with no statewide rent cap. Four federal data sources, 13 outcome variables, 116 robustness specifications.
+        with no statewide rent cap. Four federal data sources, 12 outcome variables, 116 robustness specifications.
       </p>
     </div>
   </section>
@@ -109,6 +116,11 @@
           <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#e67e22;"></span> ACS outcomes</div>
           <div class="chart-legend-item"><span class="chart-legend-swatch" style="background:#c0392b;"></span> Labor (QCEW)</div>
         </div>
+        <p class="chart-note">Source: <a href="https://github.com/smkwray/rentctrl/blob/main/results/tables/domain_comparison_summary.csv">domain_comparison_summary.csv</a></p>
+        <details class="chart-details"><summary>Uncertainty details</summary>
+          <div class="table-wrap"><table class="data-table" id="crossOutcomeUncertaintyTable"><thead><tr><th>Outcome</th><th class="num">Estimate</th><th class="num">95% CI</th><th class="num">p (HC1)</th><th class="num">p (perm)</th><th>Method</th></tr></thead><tbody></tbody></table></div>
+          <p class="chart-note">Estimate and CI are for the last post-treatment event-time coefficient (largest event time). Conventional CI uses HC1 standard errors. Permutation p-value is two-sided from randomization of treatment assignment. Permutation null band (2.5th&ndash;97.5th percentile of draws) is distinct from the estimate CI.</p>
+        </details>
       </div>
 
       <div class="table-wrap">
@@ -250,35 +262,68 @@
     function buildCharts() {
       charts.forEach(function(c){ c.destroy(); }); charts = [];
       var C = rcColors();
+      var D = window.SITE_DATA;
+      var colorMap = {accent:C.accent,green:C.green,orange:C.orange,red:C.red,muted:C.muted};
 
+      /* Cross-outcome bar (from pipeline) with uncertainty tooltip */
       charts.push(new Chart(document.getElementById('crossOutcomeChart'), {
-        type:'bar', data:{labels:['Total permits','5+ unit permits','Multifamily share','FHFA HPI','Median gross rent','Rent burden 30%+','Same house 1yr','Moved last year','Moved diff state','Renter share','QCEW weekly wage','QCEW employment'],
-        datasets:[{label:'Avg post (%)',data:[-24.7,-21.1,-8.9,-7.1,-0.7,-1.0,0.4,-2.1,31.7,0.9,3.8,-2.3],backgroundColor:[C.accent,C.accent,C.accent,C.green,C.orange,C.orange,C.orange,C.orange,C.orange,C.orange,C.red,C.red],borderRadius:4}]},
-        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.x.toFixed(1)+'%';}}}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
+        type:'bar', data:{labels:D.crossOutcome.labels,
+        datasets:[{label:'Avg post (%)',data:D.crossOutcome.values,backgroundColor:D.crossOutcome.domainColors.map(function(k){return colorMap[k]||C.muted;}),borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{
+          title:function(items){return items[0].label;},
+          label:function(ctx){
+            var u=D.crossOutcome.uncertainty[ctx.dataIndex]||{};
+            var lines=[ctx.parsed.x.toFixed(1)+'% of pre-policy mean'];
+            if(u.lastPostCILowPct!=null) lines.push('Last-coef 95% CI: ['+u.lastPostCILowPct.toFixed(1)+'%, '+u.lastPostCIHighPct.toFixed(1)+'%]');
+            if(u.lastPostPPerm!=null) lines.push('Perm p = '+u.lastPostPPerm.toFixed(3)+' (HC1 p = '+u.lastPostPConv.toFixed(4)+')');
+            return lines;
+          }
+        }}},scales:{x:{title:{display:true,text:'Percent of pre-policy mean'},grid:{color:C.grid}},y:{grid:{display:false}}}}
       }));
 
+      /* Populate uncertainty table */
+      (function(){
+        var tb=document.querySelector('#crossOutcomeUncertaintyTable tbody');
+        if(!tb) return;
+        tb.innerHTML='';
+        D.crossOutcome.labels.forEach(function(label,i){
+          var u=D.crossOutcome.uncertainty[i]||{};
+          var tr=document.createElement('tr');
+          tr.innerHTML='<td>'+label+'</td>'
+            +'<td class="num">'+(u.lastPostCILowPct!=null?D.crossOutcome.values[i].toFixed(1)+'%':'—')+'</td>'
+            +'<td class="num">'+(u.lastPostCILowPct!=null?'['+u.lastPostCILowPct.toFixed(1)+'%, '+u.lastPostCIHighPct.toFixed(1)+'%]':'—')+'</td>'
+            +'<td class="num">'+(u.lastPostPConv!=null?u.lastPostPConv.toFixed(4):'—')+'</td>'
+            +'<td class="num">'+(u.lastPostPPerm!=null?u.lastPostPPerm.toFixed(3):'—')+'</td>'
+            +'<td>'+(u.inferMethod||'—')+'</td>';
+          tb.appendChild(tr);
+        });
+      })();
+
+      /* CA vs. OR contrasts (from pipeline) */
       charts.push(new Chart(document.getElementById('stateContrastChart'), {
-        type:'bar', data:{labels:['Total permits','5+ permits','MF share','FHFA HPI','Median rent','Burden 30%+','QCEW empl','QCEW wage'],
-        datasets:[{label:'California',data:[-12.9,-11.7,-6.7,-20.1,0.6,-2.0,-1.7,6.3],backgroundColor:C.accent,borderRadius:4},{label:'Oregon',data:[-96.4,-95.6,-12.3,1.0,-2.5,0.3,-8.7,1.4],backgroundColor:C.green,borderRadius:4}]},
+        type:'bar', data:{labels:D.stateContrasts.labels,
+        datasets:[{label:'California',data:D.stateContrasts.california,backgroundColor:C.accent,borderRadius:4},{label:'Oregon',data:D.stateContrasts.oregon,backgroundColor:C.green,borderRadius:4}]},
         options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.x.toFixed(1)+'%';}}}},scales:{x:{title:{display:true,text:'Avg post (% of state pre-policy mean)'},grid:{color:C.grid}},y:{grid:{display:false}}}}
       }));
 
-      var ps=['CA','OR','AZ','CO','FL','GA','ID','NC','NV','TN','TX','UT','VA'];
-      var pp=[18.0,32.0,39.6,51.4,45.9,37.3,69.0,45.8,36.1,40.6,48.0,78.4,29.2];
+      /* State profiles (from pipeline) */
+      var ps=D.stateProfiles.states, pp=D.stateProfiles.permitsPerRenter, pt=D.stateProfiles.treated;
       charts.push(new Chart(document.getElementById('profileChart'), {
-        type:'bar', data:{labels:ps, datasets:[{label:'Permits/1K renter HH',data:pp,backgroundColor:ps.map(function(s){return(s==='CA'||s==='OR')?C.accent:C.muted;}),borderRadius:4}]},
+        type:'bar', data:{labels:ps, datasets:[{label:'Permits/1K renter HH',data:pp,backgroundColor:ps.map(function(_,i){return pt[i]?C.accent:C.muted;}),borderRadius:4}]},
         options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y.toFixed(1)+' permits per 1,000 renter households';}}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Permits per 1,000 renter HH'},grid:{color:C.grid}},x:{grid:{display:false}}}}
       }));
 
+      /* Credibility spec counts (from pipeline) */
       charts.push(new Chart(document.getElementById('credibilityChart'), {
-        type:'bar', data:{labels:['Permits (total)','Permits (5+)','MF share','FHFA HPI','Median rent','Rent burden','Same house','Moved last yr','Moved diff st','Renter share','QCEW empl','QCEW wage'],
-        datasets:[{label:'Specs',data:[9,9,9,11,9,9,9,9,9,9,11,11],backgroundColor:C.accent,borderRadius:4}]},
+        type:'bar', data:{labels:D.credibility.labels,
+        datasets:[{label:'Specs',data:D.credibility.specs,backgroundColor:C.accent,borderRadius:4}]},
         options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y+' specifications';}}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Specifications'},grid:{color:C.grid},ticks:{stepSize:2}},x:{grid:{display:false},ticks:{maxRotation:45,minRotation:45}}}}
       }));
 
+      /* Coverage windows (from pipeline) */
       charts.push(new Chart(document.getElementById('coverageChart'), {
-        type:'bar', data:{labels:['BPS (permits)','FHFA HPI','ACS (2015-19)','ACS (2021-24)','QCEW'],
-        datasets:[{label:'Coverage',data:[[2009.5,2024.5],[2009.5,2025.5],[2014.5,2019.5],[2020.5,2024.5],[2013.5,2024.5]],backgroundColor:[C.accent,C.green,C.orange,C.orange,C.purple],borderRadius:4,barPercentage:0.6}]},
+        type:'bar', data:{labels:D.coverage.labels,
+        datasets:[{label:'Coverage',data:D.coverage.ranges,backgroundColor:[C.accent,C.green,C.orange,C.orange,C.purple],borderRadius:4,barPercentage:0.6}]},
         options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){var d=ctx.raw;return Math.round(d[0]+0.5)+' \u2013 '+Math.round(d[1]-0.5);}}}},scales:{x:{min:2009,max:2026,title:{display:true,text:'Year'},grid:{color:C.grid},ticks:{stepSize:2}},y:{grid:{display:false}}}}
       }));
     }
