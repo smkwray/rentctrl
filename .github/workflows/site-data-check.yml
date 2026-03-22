@@ -1,18 +1,21 @@
 name: Site Data Consistency Check
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'docs/**'
       - 'results/**'
       - 'scripts/export_site_data.py'
+      - '.github/workflows/site-data-check.yml'
   pull_request:
     branches: [main]
     paths:
       - 'docs/**'
       - 'results/**'
       - 'scripts/export_site_data.py'
+      - '.github/workflows/site-data-check.yml'
 
 jobs:
   check-site-data:
