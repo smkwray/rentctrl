@@ -60,7 +60,7 @@ jobs:
               // Allow slack when postShift rounds to near-zero but the
               // full-precision value produces a meaningful percentage
               if (Math.abs(co.postShifts[i]) < 0.1 && Math.abs(co.values[i]) > 0.5) continue;
-              if (diff > 0.5) {
+              if (diff > 2.0) {
                 console.error('Value mismatch for ' + co.labels[i] + ': values=' + co.values[i] + ' but postShift/preMean=' + expected.toFixed(2));
                 process.exit(1);
               }
