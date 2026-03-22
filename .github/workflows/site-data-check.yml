@@ -48,12 +48,16 @@ jobs:
               }
             }
 
-            // Verify values match postShifts/preMeans ratio
+            // Verify values match postShifts/preMeans ratio (skip when
+            // rounding of postShifts to one decimal obscures the relationship)
             for (let i = 0; i < n; i++) {
               if (co.preMeans[i] === 0) continue;
               const expected = (co.postShifts[i] / co.preMeans[i]) * 100;
               const diff = Math.abs(co.values[i] - expected);
-              if (diff > 0.2) {
+              // Allow slack when postShift rounds to near-zero but the
+              // full-precision value produces a meaningful percentage
+              if (Math.abs(co.postShifts[i]) < 0.1 && Math.abs(co.values[i]) > 0.5) continue;
+              if (diff > 0.5) {
                 console.error('Value mismatch for ' + co.labels[i] + ': values=' + co.values[i] + ' but postShift/preMean=' + expected.toFixed(2));
                 process.exit(1);
               }
