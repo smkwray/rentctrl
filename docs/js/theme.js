@@ -66,9 +66,12 @@
       if (Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels)
         Chart.defaults.plugins.legend.labels.color = c.textSec;
       if (Chart.defaults.plugins.tooltip) {
-        Chart.defaults.plugins.tooltip.backgroundColor = c.navy;
+        var dk = window.rcIsDark();
+        Chart.defaults.plugins.tooltip.backgroundColor = dk ? '#1a1e2c' : '#1a1a2e';
         Chart.defaults.plugins.tooltip.titleColor = '#fff';
         Chart.defaults.plugins.tooltip.bodyColor = '#e0e0e0';
+        Chart.defaults.plugins.tooltip.borderColor = dk ? '#3a4a60' : 'transparent';
+        Chart.defaults.plugins.tooltip.borderWidth = dk ? 1 : 0;
       }
     } catch (e) {}
   };
