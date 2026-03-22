@@ -197,8 +197,8 @@ def fit_twfe_event_study(
             "p_value": model.pvalues.values,
             "infer_method": "conventional_hc1",
             "p_value_resampled": pd.NA,
-            "ci_low_resampled": pd.NA,
-            "ci_high_resampled": pd.NA,
+            "perm_null_q025": pd.NA,
+            "perm_null_q975": pd.NA,
             "resample_count": 0,
         }
     )
@@ -227,8 +227,8 @@ def fit_twfe_event_study(
                 two_sided_p = (float((draws.abs() >= abs(observed)).sum()) + 1.0) / (float(len(draws)) + 1.0)
                 coefficient_table.loc[term_mask, "infer_method"] = "permutation"
                 coefficient_table.loc[term_mask, "p_value_resampled"] = two_sided_p
-                coefficient_table.loc[term_mask, "ci_low_resampled"] = float(draws.quantile(0.025))
-                coefficient_table.loc[term_mask, "ci_high_resampled"] = float(draws.quantile(0.975))
+                coefficient_table.loc[term_mask, "perm_null_q025"] = float(draws.quantile(0.025))
+                coefficient_table.loc[term_mask, "perm_null_q975"] = float(draws.quantile(0.975))
                 coefficient_table.loc[term_mask, "resample_count"] = int(len(draws))
 
     try:

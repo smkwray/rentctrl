@@ -16,7 +16,7 @@
     if (btn) btn.textContent = theme === 'dark' ? '\u2600' : '\u263E';
   }
 
-  applyTheme(getSavedTheme() || 'light');
+  applyTheme(getSavedTheme() || getSystemTheme());
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
     if (!getSavedTheme()) applyTheme(e.matches ? 'dark' : 'light');

@@ -205,6 +205,9 @@ code { font-family: var(--font-mono); font-size: 0.875em; background: var(--colo
 .chart-canvas-wrap canvas { width: 100% !important; }
 .chart-canvas-wrap.tall { min-height: 500px; }
 .chart-note { font-size: 0.8rem; color: var(--color-text-light); margin-top: 0.75rem; font-style: italic; }
+.chart-details { margin-top: 0.75rem; font-size: 0.85rem; }
+.chart-details summary { cursor: pointer; color: var(--color-accent); font-weight: 500; }
+.chart-details .table-wrap { margin-top: 0.5rem; }
 
 /* ── Tables ── */
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1rem 0; }

@@ -2,11 +2,11 @@
 
 This directory contains:
 
-- starter tables generated from the included raw files,
-- starter figures generated from the included raw files,
-- baseline event-study text output where enough seeded data exist.
+- tables generated from the baseline pipeline,
+- figures generated from the baseline pipeline,
+- baseline event-study output for all outcome domains.
 
-These are not the final research results. They are smoke-test outputs showing that the scaffold already runs.
+These are reproducible outputs from the current pipeline run. Evidence quality varies by domain — see the evidence grading in the main README and on the project site.
 
 Current build notes:
 - ACS rent-profile coverage in this workspace is 2010-2019 and 2021-2024. The 2020 ACS 1-year profile endpoint remains unavailable, and the rent/burden series now use year-aware harmonization because official profile codes shift between 2010-2014 and 2015+.

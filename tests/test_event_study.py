@@ -132,5 +132,5 @@ def test_fit_twfe_event_study_adds_resampled_columns() -> None:
 
     out = extract_event_study_coefficients(result)
 
-    assert {"infer_method", "p_value_resampled", "ci_low_resampled", "ci_high_resampled", "resample_count"}.issubset(out.columns)
+    assert {"infer_method", "p_value_resampled", "perm_null_q025", "perm_null_q975", "resample_count"}.issubset(out.columns)
     assert out["resample_count"].max() >= 0
