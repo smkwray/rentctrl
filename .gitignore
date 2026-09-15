@@ -5,6 +5,8 @@
 
 # Always ignore secrets, credentials, local environment, caches, and OS noise.
 .env
+.private-denylist
+.worktrees/
 .env.*
 *.key
 *.pem

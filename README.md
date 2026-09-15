@@ -561,17 +561,17 @@ rentctrl/
 ## Reproducing the results
 
 ```bash
-# use the external project environment
-[local-path] -m pip install -r requirements.txt
+# use your active project environment
+python3 -m pip install -r requirements.txt
 
 # run the full public statewide baseline
-[local-path] -B scripts/reproduce_public_baseline.py
+python3 -B scripts/reproduce_public_baseline.py
 
 # or use the Make target
 make reproduce
 
 # run tests
-[local-path] -B -m pytest -q
+python3 -B -m pytest -q
 ```
 
 Alternative setup using [uv](https://github.com/astral-sh/uv):

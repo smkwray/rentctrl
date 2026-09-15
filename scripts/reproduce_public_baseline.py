@@ -8,7 +8,6 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_EXTERNAL_PYTHON = Path("[local-path]")
 
 
 def _parse_dotenv_exports(path: Path) -> dict[str, str]:
@@ -42,9 +41,9 @@ def resolve_python(root: Path) -> Path:
             return candidate
 
     current = Path(sys.executable)
-    if current.exists() and root not in current.parents:
+    if current.exists():
         return current
-    return DEFAULT_EXTERNAL_PYTHON
+    raise FileNotFoundError("Could not resolve a Python interpreter.")
 
 
 def command_env(root: Path) -> dict[str, str]:
@@ -84,7 +83,7 @@ def print_summary(root: Path) -> None:
 def main() -> None:
     python = resolve_python(ROOT)
     if not python.exists():
-        raise FileNotFoundError(f"Could not resolve an external project interpreter. Tried {python}.")
+        raise FileNotFoundError(f"Could not resolve a project interpreter. Tried {python}.")
     env = command_env(ROOT)
 
     run_step(python, env, "scripts/download_fhfa_hpi.py")
