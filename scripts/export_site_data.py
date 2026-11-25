@@ -273,10 +273,10 @@ def build_credibility() -> dict:
 def build_coverage() -> dict:
     """Build coverage-window chart data (static metadata)."""
     return {
-        "labels": ["BPS (permits)", "FHFA HPI", "ACS (2015-19)",
+        "labels": ["BPS (permits)", "FHFA HPI", "ACS (2010-19)",
                     "ACS (2021-24)", "QCEW"],
         "ranges": [[2009.5, 2024.5], [2009.5, 2025.5],
-                    [2014.5, 2019.5], [2020.5, 2024.5], [2013.5, 2024.5]],
+                    [2009.5, 2019.5], [2020.5, 2024.5], [2013.5, 2024.5]],
     }
 
 

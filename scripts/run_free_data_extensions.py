@@ -222,7 +222,7 @@ def build_question_coverage() -> pd.DataFrame:
         {
             "question_id": "Q6",
             "question": QUESTION_ROWS[5][1],
-            "status": "answered_with_limits",
+            "status": "exploratory",
             "primary_artifacts": "results/tables/event_study_qcew_total_covered_emplvl.txt; results/tables/event_study_qcew_total_covered_avg_weekly_wage.txt; results/figures/quarterly_qcew_treated_vs_donor.png",
             "notes": with_manifest_note("Q6", "QCEW area-slice coverage begins in 2014 and should remain exploratory."),
         },

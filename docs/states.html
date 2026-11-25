@@ -87,12 +87,12 @@
         <table class="data-table">
           <thead><tr><th>Q</th><th>Question</th><th>Domain</th><th>Source</th><th>Coverage</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td class="highlight">Q1</td><td>Did caps reduce occupied-rent growth?</td><td>Rent</td><td>ACS</td><td>2015-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td class="highlight">Q2</td><td>Did caps reduce renter cost burden?</td><td>Affordability</td><td>ACS</td><td>2015-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
-            <tr><td class="highlight">Q3</td><td>Did caps increase residential stability?</td><td>Mobility</td><td>ACS</td><td>2015-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q1</td><td>Did caps reduce occupied-rent growth?</td><td>Rent</td><td>ACS</td><td>2010-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q2</td><td>Did caps reduce renter cost burden?</td><td>Affordability</td><td>ACS</td><td>2010-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q3</td><td>Did caps increase residential stability?</td><td>Mobility</td><td>ACS</td><td>2010-19, 21-24</td><td><span class="badge badge-yellow">Limited</span></td></tr>
             <tr><td class="highlight">Q4</td><td>Did caps reduce housing supply?</td><td>Supply</td><td>BPS</td><td>2010-2024</td><td><span class="badge badge-green">Answered</span></td></tr>
             <tr><td class="highlight">Q5</td><td>Did caps change housing prices?</td><td>Capitalization</td><td>FHFA</td><td>2010-2025</td><td><span class="badge badge-green">Answered</span></td></tr>
-            <tr><td class="highlight">Q6</td><td>Did caps change labor-market outcomes?</td><td>Labor</td><td>QCEW</td><td>2014-2024</td><td><span class="badge badge-yellow">Limited</span></td></tr>
+            <tr><td class="highlight">Q6</td><td>Did caps change labor-market outcomes?</td><td>Labor</td><td>QCEW</td><td>2014-2024</td><td><span class="badge badge-orange">Exploratory</span></td></tr>
             <tr><td class="highlight">Q7</td><td>Larger effects where burden was higher?</td><td>Heterogeneity</td><td>ACS+ES</td><td>CA vs. OR</td><td><span class="badge badge-orange">Suggestive</span></td></tr>
             <tr><td class="highlight">Q8</td><td>Larger effects where supply was constrained?</td><td>Heterogeneity</td><td>BPS+ES</td><td>CA vs. OR</td><td><span class="badge badge-orange">Suggestive</span></td></tr>
             <tr><td class="highlight">Q9</td><td>Did impacts differ across outcome domains?</td><td>Cross-domain</td><td>All</td><td>Varies</td><td><span class="badge badge-blue">Summary</span></td></tr>
@@ -205,7 +205,7 @@
         <div class="card"><h3>Quarterly Timing</h3><p>FHFA and QCEW under preferred (OR: 2019Q2) and alternative (OR: 2019Q1) treatment dates.</p></div>
         <div class="card"><h3>Pre-Trend Tests</h3><p>Lead coefficients for each outcome. Clean pre-trends mean treated and donor states were on parallel paths before policy.</p></div>
       </div>
-      <div class="insight-box"><p><strong>Pre-trend summary:</strong> Permits and FHFA have the cleanest pre-trends. Median gross rent has strongly negative leads at event times &minus;4 and &minus;3 (pre-treatment divergence). QCEW employment has a borderline negative lead at &minus;4. ACS outcomes are compressed by the narrow 2015&ndash;2019 pre-window.</p></div>
+      <div class="insight-box"><p><strong>Pre-trend summary:</strong> Permits and FHFA have the cleanest pre-trends. Median gross rent has strongly negative leads at event times &minus;4 and &minus;3 (pre-treatment divergence). QCEW employment has a borderline negative lead at &minus;4. ACS outcomes have no 2020 observation, which is California&rsquo;s first treated year and Oregon&rsquo;s second.</p></div>
     </section>
 
     <!-- Data sources -->
@@ -222,7 +222,7 @@
           <tbody>
             <tr><td class="highlight">Building Permits Survey (BPS)</td><td>Census Bureau</td><td>New privately-owned housing units authorized by building permits, broken down by structure size</td><td>Annual</td><td>2010&ndash;2024</td></tr>
             <tr><td class="highlight">House Price Index (HPI)</td><td>FHFA</td><td>Purchase-only, seasonally adjusted index of repeat-sale home prices</td><td>Annual + Quarterly</td><td>2010&ndash;2025</td></tr>
-            <tr><td class="highlight">ACS 1-Year Profiles</td><td>Census Bureau</td><td>Median gross rent, rent burden, renter share, residential mobility (3 measures)</td><td>Annual</td><td>2015&ndash;19, 21&ndash;24</td></tr>
+            <tr><td class="highlight">ACS 1-Year Profiles</td><td>Census Bureau</td><td>Median gross rent, rent burden, renter share, residential mobility (3 measures)</td><td>Annual</td><td>2010&ndash;19, 21&ndash;24</td></tr>
             <tr><td class="highlight">QCEW Area Slices</td><td>BLS</td><td>Total covered employment and average weekly wages for workers covered by unemployment insurance</td><td>Annual + Quarterly</td><td>2014&ndash;2024</td></tr>
           </tbody>
         </table>
@@ -241,7 +241,7 @@
 
   </main>
 
-  <footer class="site-footer"><div class="footer-inner"><span>rentctrl &middot; MIT License &middot; Shane Wray 2026</span><a href="https://github.com/smkwray/rentctrl">GitHub</a></div></footer>
+  <footer class="site-footer"><div class="footer-inner"><span>rentctrl &middot; MIT License</span><a href="https://github.com/smkwray/rentctrl">GitHub</a></div></footer>
 
   <script>
     rcChartDefaults();
