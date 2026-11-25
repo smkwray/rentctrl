@@ -111,8 +111,6 @@ uv.lock
 tests/test_site_playwright.py
 
 !results/
-!results/README.md
-!results/nyc_additional_question_shortlist.md
 !results/sf_inventory_reporting_note.md
 !results/weho_public_reporting_note.md
 !results/los_angeles_public_reporting_note.md

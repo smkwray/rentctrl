@@ -1,6 +1,6 @@
 # West Hollywood Public Reporting Note
 
-West Hollywood now supports a linked administrative reporting package for protected stock, buyouts, seismic exemptions, and bounded appeal-board hearings.
+The West Hollywood package links administrative records for protected stock, buyouts, seismic exemptions, and bounded appeal-board hearings.
 
 - Protected-stock rows: 17,175
 - Protected-stock addresses: 5,987
@@ -12,5 +12,5 @@ West Hollywood now supports a linked administrative reporting package for protec
 
 Interpretation:
 - This is strongest as a linked administrative result about protected-stock footprint and public surface overlap.
-- The hearing archive is explicitly bounded to the currently collected public minutes.
-- The package should not be presented as a treatment-effects estimate.
+- The hearing archive covers only the public minutes collected so far.
+- It is not a treatment-effects estimate.

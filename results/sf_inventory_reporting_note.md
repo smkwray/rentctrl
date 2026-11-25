@@ -1,6 +1,6 @@
 # San Francisco Inventory Reporting Note
 
-San Francisco currently supports a strong inventory-and-compliance reporting package, not a treatment-effects design.
+The San Francisco package describes the rent-unit inventory and compliance; it is not a treatment-effects design.
 
 - Total unit rows: 533,205
 - Submission years: 2022-2026
@@ -11,5 +11,5 @@ San Francisco currently supports a strong inventory-and-compliance reporting pac
 Interpretation:
 - The public dataset is strongest for stock composition, geography, occupancy mix, and rent-band reporting.
 - It can support year-over-year inventory and compliance narratives across neighborhoods and districts.
-- Because the source is block-anonymized and owner-reported, it should be presented as an inventory/compliance result rather than a treatment-effects estimate.
+- Because the source is block-anonymized and owner-reported, the results describe inventory and compliance, not treatment effects.
 
