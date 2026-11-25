@@ -32,11 +32,11 @@ def test_build_city_audit_status_updates_current_dc_and_weho_artifacts() -> None
     weho = out[out["city"] == "West Hollywood"].iloc[0]
 
     assert dc["status"] == "pilot"
-    assert dc["audit_artifact"] == "results/dc_local_pilot.md"
+    assert dc["audit_artifact"] == "docs/cities.html"
     assert dc["design_type"] == "parcel_profile"
     assert dc["primary_join_key"] == "SSL"
     assert weho["status"] == "package"
-    assert weho["audit_artifact"] == "results/weho_second_stage_linkage.md"
+    assert weho["audit_artifact"] == "results/weho_public_reporting_note.md"
     assert weho["design_type"] == "protected_stock_linkage"
 
 
